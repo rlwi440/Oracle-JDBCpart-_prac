@@ -1,31 +1,49 @@
 --=============================
 --kh 계정
 --=============================
-show user;
-
+SHOW USER;
 
 --table sample 생성
-create  table sample(
-    id number
+CREATE TABLE sample (
+    id NUMBER
 );
 
-
 --현재 계정의 소유 테이블 목록 조회
-select * from tab;
+SELECT
+    *
+FROM
+    tab;
 
 --사원테이블
-select * from employee; 
+SELECT
+    *
+FROM
+    employee; 
 --부서테이블
-select * from department;           --부서테이블   L3 체크 
+SELECT
+    *
+FROM
+    department;           --부서테이블   L3 체크 
 --직급테이블
-select * from job;
+SELECT
+    *
+FROM
+    job;
 --지역테이블
-select * from location;
+SELECT
+    *
+FROM
+    location;
 --국가테이블
-select * from nation;
+SELECT
+    *
+FROM
+    nation;
 --급여등급테이블
-select * from sal_grade;
-
+SELECT
+    *
+FROM
+    sal_grade;
 
 --table entity relation 
 --데이터를 보관하는 객체 
@@ -34,13 +52,12 @@ select * from sal_grade;
 --행 row record  tuple 가로, 실제 데이터 가 담긴 
 --도메인 domain하나의 컬럼에 취할수 있는값의 그룹(범위)
 
-
 --테이블 명세
 --컬럼명    널여부    자료형 
 --단어 구문  emp_id  EMP_ID
-describe employee;
-desc employee;
+DESCRIBE employee;
 
+DESC employee;
 
 
 --===================================
@@ -66,36 +83,46 @@ desc employee;
 
 --가변형 long :최대 2GB
 -- LOB타입(Large object) 중의 CLOB(character LOB)단일컬럼 최대 4GB까지 지원 
-create table tb_datatype(
+CREATE TABLE tb_datatype (
 --컬럼명 자료형 널여부 기본값
-a char(10),
-b varchar2(10)
+    a  CHAR(10),
+    b  VARCHAR2(10)
 );
 
 --테이블 조회
-select *    -- * 모든걸럼 
-from  tb_datatype; -- 테이블명 
+SELECT
+    *    -- * 모든걸럼 
+FROM
+    tb_datatype; -- 테이블명 
 
 --데이터추가 : 한행을 추가 
-insert  into tb_datatype
-values('hello','hello');
+INSERT INTO tb_datatype VALUES (
+    'hello',
+    'hello'
+);
 
-insert  into tb_datatype
-values('안녕','안녕');
+INSERT INTO tb_datatype VALUES (
+    '안녕',
+    '안녕'
+);
 
-
-insert  into tb_datatype
-values('에브리바디','안녕'); --ORA-12899: value too large for column "KH"."TB_DATATYPE"."A" (actual: 15, maximum: 10)  KH 사용자  TB_DATATYPE  A
+INSERT INTO tb_datatype VALUES (
+    '에브리바디',
+    '안녕'
+); --ORA-12899: value too large for column "KH"."TB_DATATYPE"."A" (actual: 15, maximum: 10)  KH 사용자  TB_DATATYPE  A
 
 --데이터가 변경 (insert,update,delete)되는경우, 메모리상에서 먼저 처리된다.
 --commit 을 통해 실제 database에 적용해야한다.
-commit;
-
+COMMIT;
 
 --lengthb(컬럼명):number-저장된 데이터의 실제크기를 리턴
-select a, length(a),b,length(b)
-from tb_datatype;
-
+SELECT
+    a,
+    length(a),
+    b,
+    length(b)
+FROM
+    tb_datatype;
 
 ------------------------------------------------------------
 -- 숫자형
@@ -113,20 +140,31 @@ number(7,1)         1234.6      --반올림
 number(7,-2)        1200        --반올림
 */
 
-create table tb_datatype_number (
-    a number,
-    b number(7),
-    c number(7,1),
-    d number(7,-2)
+CREATE TABLE tb_datatype_number (
+    a  NUMBER,
+    b  NUMBER(7),
+    c  NUMBER(7, 1),
+    d  NUMBER(7, - 2)
 );
 
-select * from tb_datatype_number;
+SELECT
+    *
+FROM
+    tb_datatype_number;
 
-insert into tb_datatype_number 
-values(1234.567, 1234.567, 1234.567, 1234.567);
+INSERT INTO tb_datatype_number VALUES (
+    1234.567,
+    1234.567,
+    1234.567,
+    1234.567
+);
 --지정한 크기보다 큰 숫자는 ORA-01438: value larger than specified precision allowed for this column 유발
-insert into tb_datatype_number 
-values(1234567890.123, 1234567.567, 12345678.5678, 1234.567);
+INSERT INTO tb_datatype_number VALUES (
+    1234567890.123,
+    1234567.567,
+    12345678.5678,
+    1234.567
+);
 
 /*
         
@@ -149,9 +187,9 @@ values(1234567890.123, 1234567.567, 12345678.5678, 1234.567);
         ------------------------------------------------------------
 
 */
-commit; -- 저장시점
+COMMIT; -- 저장시점
 
-rollback;       --마지막 commit시점 
+ROLLBACK;       --마지막 commit시점 
 
 --지정한 크기보다 큰숫자
 
@@ -161,36 +199,48 @@ rollback;       --마지막 commit시점
 -- date 년월일시분초
 -- timestamp 년월일시분초 밀리초 지역대
 
-create table tb_datatype_date (
-    a date,
-    b timestamp
+CREATE TABLE tb_datatype_date (
+    a  DATE,
+    b  TIMESTAMP
 );
 
 --to_char 날짜/숫자를 문자열로 표현
-select to_char(a, 'yyyy/mm/dd hh24:mi:ss'), b
-from tb_datatype_date;
+SELECT
+    to_char(a, 'yyyy/mm/dd hh24:mi:ss'),
+    b
+FROM
+    tb_datatype_date;
 
-insert into tb_datatype_date
-values (sysdate, systimestamp);
-
+INSERT INTO tb_datatype_date VALUES (
+    sysdate,
+    systimestamp
+);
 
 --날짜형 +- 숫자(1=하루) = 날짜형
-select to_char(a, 'yyyy/mm/dd hh24:mi:ss'), 
-            to_char(a - 1, 'yyyy/mm/dd hh24:mi:ss'), 
-            b
-from tb_datatype_date;
+SELECT
+    to_char(a, 'yyyy/mm/dd hh24:mi:ss'),
+    to_char(a - 1, 'yyyy/mm/dd hh24:mi:ss'),
+    b
+FROM
+    tb_datatype_date;
 
 --날짜형 - 날짜형 = 숫자(1=하루)
-select sysdate - a --0.009일 차
-from tb_datatype_date;
+SELECT
+    sysdate - a --0.009일 차
+FROM
+    tb_datatype_date;
 
 --to_date 문자열을 날짜형으로 변환 함수
-select to_date('2021/01/23') - a       --문자열을 날짜형으로 변환 함수 
-from tb_datatype_date;
+SELECT
+    to_date('2021/01/23') - a       --문자열을 날짜형으로 변환 함수 
+FROM
+    tb_datatype_date;
 
 --dual 가상테이블
-select (sysdate + 1) - sysdate          --sysdate 현재날짜 
-from dual;
+SELECT
+    ( sysdate + 1 ) - sysdate          --sysdate 현재날짜 
+FROM
+    dual;
 
 --============================
 --DQL
@@ -214,66 +264,109 @@ having 그룹조건절 (4)
 order by 정렬기준컬럼(6)
 */
 
-select *
-from employee 
-where dept_code= 'D9'--데이터는 대소문자 구분
-order by emp_name asc; --오름차순
+SELECT
+    *
+FROM
+    employee
+WHERE
+    dept_code = 'D9'--데이터는 대소문자 구분
+ORDER BY
+    emp_name ASC; --오름차순
 
 --1.job테이블에서 job_name 컬럼정보만 출력 
-select  job_name
-from job;
+SELECT
+    job_name
+FROM
+    job;
 
 --2.department 테이블에서 모든컬럼을출력 
-select * from department;     
+SELECT
+    *
+FROM
+    department;     
 
 --3.employee테이블에서 이름,이메일 전화번호,입사일을 출력
-select  EMP_name,email,phone,hire_date
-from employee;
+SELECT
+    emp_name,
+    email,
+    phone,
+    hire_date
+FROM
+    employee;
 
 --4.employee테이블에서 급여가 2,500,000원 이상이 사원의 이름과급여를 출력 
-select emp_name,salary
-from employee       -- from절에조회하고자 하는테이블 명시 
-where salary >= 2500000; 
+SELECT
+    emp_name,
+    salary
+FROM
+    employee       -- from절에조회하고자 하는테이블 명시 
+WHERE
+    salary >= 2500000; 
 
 --5.employee 테이블에서 급여가 3,500,000원 이상이면서, 직급코드가 'J3'인 사원을조회
 --(&&||이 아닌 and or 만 사용가능)
 
-select *
-from employee     
-where salary>=3500000 and job_code ='J3';
+SELECT
+    *
+FROM
+    employee
+WHERE
+        salary >= 3500000
+    AND job_code = 'J3';
 
 --6.employe테이블에서 현재 근무중인 사원을 이름 오름차순으로 정렬해서 출력
-select emp_name
-from employee
-where quit_yn ='N'
-order by emp_name asc;      --ascending (기본값)
+SELECT
+    emp_name
+FROM
+    employee
+WHERE
+    quit_yn = 'N'
+ORDER BY
+    emp_name ASC;      --ascending (기본값)
 
 -- 7. employee 테이블에서 현재 근무중인 사원을 이름 내림차순으로 정렬해서 출력
-select emp_name
-from employee
-where quit_yn ='N'
-order by emp_name desc;     --descending
-
+SELECT
+    emp_name
+FROM
+    employee
+WHERE
+    quit_yn = 'N'
+ORDER BY
+    emp_name DESC;     --descending
 
 --8. employee 테이블에서  급여가  1,500,000원 이상이 사원의 이름과 급여를 출력 
-select emp_name,salary
-from employee
-where  salary >= 1500000;
+SELECT
+    emp_name,
+    salary
+FROM
+    employee
+WHERE
+    salary >= 1500000;
 
 --9 employee 테이블에서 급여가 1,500,000원 이상이 사원의 주민번호와 급여를 출력
-select emp_no,salary
-from employee
-where salary>=1500000;
+SELECT
+    emp_no,
+    salary
+FROM
+    employee
+WHERE
+    salary >= 1500000;
 
 --10,  employee 테이블에서  이메일 주민등록번호 출력 
-select emp_no,email,phone 
-from employee;
+SELECT
+    emp_no,
+    email,
+    phone
+FROM
+    employee;
 --11 department 테이블에서   
-select dept_id,dept_title
-from department;
+SELECT
+    dept_id,
+    dept_title
+FROM
+    department;
 
-commit;
-
+COMMIT;
 
 
 ----------------------
@@ -284,53 +377,75 @@ commit;
 -- 임의의 literal
 --각 컬럼은 별칭(alias)를  가질수 있다. as와 "(쌍따옴표)는생략가능
 --별칭에 공백,특수문자가 있거나 숫자로 시작하는경우 쌍따옴표 필수,
-select emp_name as "사원명",
-    phone "전화번호",
-    salary 급여  ,
-    salary*12 "연 봉" ,
+SELECT
+    emp_name     AS "사원명",
+    phone        "전화번호",
+    salary       급여,
+    salary * 12    "연 봉",
     123
-from employee;
+FROM
+    employee;
 
 --실급여: salary + (salary*bonus)
 --nvl     salary +(salary * nvl(bonus,0))
-select emp_name,
-       salary,
-       bonus,
-       salary +(salary * nvl(bonus,0)) 실급여     
-       from employee;
+SELECT
+    emp_name,
+    salary,
+    bonus,
+    salary + ( salary * nvl(bonus, 0) ) 실급여
+FROM
+    employee;
     
 --null값과는 산술연산 할수없다. 그 결과는 무조건 null이다.
 --null%1(x)나머지연산자는 사용불가
-select null +1 ,
-            null-1,
-            null*1,
-            null/1
-from dual; --1행 가상테이블
+SELECT
+    NULL + 1,
+    NULL - 1,
+    NULL * 1,
+    NULL / 1
+FROM
+    dual; --1행 가상테이블
 
 --nvl(col, null 일때 값 )null처리 함수 
 --col의 값이 null이 아니면,col값 리턴
 --col의 값이 null 이면 (null일때 값)을 리턴
-select bonus,
-    nvl(bonus,0) null처리후
-from employee;
+SELECT
+    bonus,
+    nvl(bonus, 0) null처리후
+FROM
+    employee;
 
 --distinct 중복제거용 키워드
 --select  절에 단 한번 사용가능하다.
-select distinct job_code        
-from employee;
+SELECT DISTINCT
+    job_code
+FROM
+    employee;
 
 --여러컬럼 사용시 컬럼을 묶어서 고유한값으로 취급한다.
-select distinct job_code,dept_code
-from employee;
+SELECT DISTINCT
+    job_code,
+    dept_code
+FROM
+    employee;
 
 --문자 연결연산자 ||
 --+ 는 산술연산만 가능하다.
-select '안녕'||'하세요'||123||sysdate
-from dual;
+SELECT
+    '안녕'
+    || '하세요'
+    || 123
+    || sysdate
+FROM
+    dual;
 
-select  emp_name||'('||phone||')'
-from employee;
-
+SELECT
+    emp_name
+    || '('
+    || phone
+    || ')'
+FROM
+    employee;
 
 -------------------------
 --where
@@ -352,123 +467,201 @@ from employee;
     not     제시한 조건반전
 */
 -- 부서코드가 D6가 아닌 사원조회
-select*
-from employee       --테이블 
-where dept_code !='D6';      --조건 'D6' 코드
+SELECT
+    *
+FROM
+    employee       --테이블 
+WHERE
+    dept_code != 'D6';      --조건 'D6' 코드
 
-select emp_name,salary
-from employee
-where salary >=2000000;         --세자리 마다 , 하면 문자열 
+SELECT
+    emp_name,
+    salary
+FROM
+    employee
+WHERE
+    salary >= 2000000;         --세자리 마다 , 하면 문자열 
 
 -- 날짜형 크기비교 가능 
-select emp_name,hire_date
- from employee
- where  hire_date<'2000/01/01';     --날짜 형식의 문자열은 자동으로 날짜형으로 형변환
+SELECT
+    emp_name,
+    hire_date
+FROM
+    employee
+WHERE
+    hire_date < '2000/01/01';     --날짜 형식의 문자열은 자동으로 날짜형으로 형변환
  
  --20년이상 근무한 사원조회:날짜형 -날짜형=숫자(1=하루)
  --날짜형 -숫자(1=하루)=날짜형
- select emp_name,hire_date
- from employee
- where sysdate- hire_date>=20*365;          --sysdate 현재날짜 
+ SELECT
+    emp_name,
+    hire_date
+FROM
+    employee
+WHERE
+    sysdate - hire_date >= 20 * 365;          --sysdate 현재날짜 
 
 --부서코드가D6이거나  D9인 조회
-select emp_name,dept_code
-from employee
-where dept_code= 'D6'or dept_code='D9';
+SELECT
+    emp_name,
+    dept_code
+FROM
+    employee
+WHERE
+    dept_code = 'D6'
+    OR dept_code = 'D9';
 
 --범위 연산
 --급여가 200만원 이상 400만원 이하 사원 조회 (사원명 급여)
-select emp_name,salary
-from  employee
-where salary between 2000000 and 4000000;
+SELECT
+    emp_name,
+    salary
+FROM
+    employee
+WHERE
+    salary BETWEEN 2000000 AND 4000000;
 
 --  입사일이 1990/01/01 ~ 2001/01/01 인  사원조회(사원명,입사일)
-select emp_name,hire_Date
-from employee
-where hire_Date >'1990/0101' and '2001/01/01'< hire_Date;
+SELECT
+    emp_name,
+    hire_date
+FROM
+    employee
+WHERE
+        hire_date > '1990/0101'
+    AND '2001/01/01' < hire_date;
 --between  and  사용 
-select emp_name, hire_date
-from employee
-where hire_date between to_date('1990/01/01') and to_date('2001/01/01');
-
+SELECT
+    emp_name,
+    hire_date
+FROM
+    employee
+WHERE
+    hire_date BETWEEN to_date('1990/01/01') AND to_date('2001/01/01');
 
 --like ,not like 
 --문자열  패턴 비교 연산 
 --wild card : 패턴의미를 가지는 특수문자 
 -- 아무문자 1개 
 --%아무문자 0개 이상 
-select emp_name
-from employee
-where emp_name like '전%' ;  --전으로 시작,0개이상의 문자가 존재하는가
+SELECT
+    emp_name
+FROM
+    employee
+WHERE
+    emp_name LIKE '전%';  --전으로 시작,0개이상의 문자가 존재하는가
 --파전(x)
 
-select emp_name
-from employee
-where emp_name like '전__';
+SELECT
+    emp_name
+FROM
+    employee
+WHERE
+    emp_name LIKE '전__';
 --전형동,전전전(0)
 --전,전진,파전,전당포아저씨(x)
 
 --이름에 가운데 글자가 '옹'인 사원 조회, 단, 이름은 3글자
-select emp_name
-from employee
-where emp_name like '_옹_';
+SELECT
+    emp_name
+FROM
+    employee
+WHERE
+    emp_name LIKE '_옹_';
 
 --이름에 '이'가 들어가는 사원 조회.
-select emp_name
-from employee
-where emp_name like '%이%';
+SELECT
+    emp_name
+FROM
+    employee
+WHERE
+    emp_name LIKE '%이%';
 
 --email컬럼값의 '_'   이전 글자가 3글자인 이메일을조회
-select email 
-from employee
+SELECT
+    email
+FROM
+    employee
 --where email like'___%';
-where email like '___\_%'escape '\'; --escape문자등록.데이터에 존재하지 않을것.
+WHERE
+    email LIKE '___\_%' ESCAPE '\'; --escape문자등록.데이터에 존재하지 않을것.
 
 --in, not in 값목록에 포함여부
 --부석코드가 D6또는 D8인 사원조회
-select emp_name,dept_code
-from employee
-where  dept_code='D6'or dept_code='D8'; 
+SELECT
+    emp_name,
+    dept_code
+FROM
+    employee
+WHERE
+    dept_code = 'D6'
+    OR dept_code = 'D8';
 
-select emp_name,dept_code
-from employee
-where  dept_code in ('D6','D8');     --개수제한없이 값나열       in 포함여부 
+SELECT
+    emp_name,
+    dept_code
+FROM
+    employee
+WHERE
+    dept_code IN ( 'D6', 'D8' );     --개수제한없이 값나열       in 포함여부 
 
 
+SELECT
+    emp_name,
+    dept_code
+FROM
+    employee
+WHERE
+    dept_code NOT IN ( 'D6', 'D8' );     --개수제한없이 값나열       not in 포함여부 조회 
 
-select emp_name,dept_code
-from employee
-where  dept_code not in ('D6','D8');     --개수제한없이 값나열       not in 포함여부 조회 
-
-
-select emp_name,dept_code
-from employee
-where  dept_code !='D6' and  dept_code !='D8';      --D6와 D8이 다르다면 or 같다면 차이점
-
+SELECT
+    emp_name,
+    dept_code
+FROM
+    employee
+WHERE
+        dept_code != 'D6'
+    AND dept_code != 'D8';      --D6와 D8이 다르다면 or 같다면 차이점
 
 --is null, is not null :null 비교연산
 --인턴사원 조회 
 --null값은 산술연산, 비교연산 불가능 하다
-select emp_name,dept_code
-from employee
+SELECT
+    emp_name,
+    dept_code
+FROM
+    employee
 --where dept_code=null;
-where dept_code is null;        --비교연산 is null 조회
+WHERE
+    dept_code IS NULL;        --비교연산 is null 조회
 
-select emp_name,dept_code
-from employee
+SELECT
+    emp_name,
+    dept_code
+FROM
+    employee
 --where dept_code=null;
-where dept_code is  not null;       --is not null 조회 null이 아닌사원
+WHERE
+    dept_code IS NOT NULL;       --is not null 조회 null이 아닌사원
 
 --D6,D8부서원이 아닌 사원조회(인터사원 포함)
-select emp_name,dept_code
-from employee
-where  dept_code not in ('D6','D8') or dept_code is null ; --is null  조회  18행 조회
+SELECT
+    emp_name,
+    dept_code
+FROM
+    employee
+WHERE
+    dept_code NOT IN ( 'D6', 'D8' )
+    OR dept_code IS NULL; --is null  조회  18행 조회
 
 --nvl 버전 
-select emp_name, nvl(dept_code,'인턴') dept_code
-from employee 
-where nvl  (dept_code,'D0') not in ('D6','D8');         --nvl (dept_code,'D0')
-
+SELECT
+    emp_name,
+    nvl(dept_code, '인턴') dept_code
+FROM
+    employee
+WHERE
+    nvl(dept_code, 'D0') NOT IN ( 'D6', 'D8' );         --nvl (dept_code,'D0')
 
 ---------------------------------
 --ORDER BY
@@ -483,21 +676,35 @@ where nvl  (dept_code,'D0') not in ('D6','D8');         --nvl (dept_code,'D0')
 --desc 내림차순
 -- 복수개의 컬럼차례로 정렬가능
 
-select emp_id,emp_name,dept_code,job_code,salary,hire_date
-from employee
-order  by salary  desc;     --asc는 생략가능,desc nulls last  밑으로보낼수있다.
+SELECT
+    emp_id,
+    emp_name,
+    dept_code,
+    job_code,
+    salary,
+    hire_date
+FROM
+    employee
+ORDER BY
+    salary DESC;     --asc는 생략가능,desc nulls last  밑으로보낼수있다.
 
 --alias 사용가능
 
-select emp_id 사번,
-        emp_name 사원명
-    from employee
-    order by 사원명;         --order by  테이블정렬 조회
+SELECT
+    emp_id    사번,
+    emp_name  사원명
+FROM
+    employee
+ORDER BY
+    사원명;         --order by  테이블정렬 조회
     
 --1부터 시작하는 컬럼순서 사용가능
- select *
- from employee
- order by 9 desc;           --order by  테이블정렬 조회
+ SELECT
+    *
+FROM
+    employee
+ORDER BY
+    9 DESC;           --order by  테이블정렬 조회
     
     
 --=========================
@@ -524,73 +731,102 @@ select emp_id 사번,
 
 --length(col):number
 --문자열의 길이를 리턴
-select emp_name,length(emp_name)
-from employee;
+SELECT
+    emp_name,
+    length(emp_name)
+FROM
+    employee;
 
 --where절에서도 사용가능 
-select emp_name,email
-from employee
-where length(email)<15;
+SELECT
+    emp_name,
+    email
+FROM
+    employee
+WHERE
+    length(email) < 15;
 
 --length(col)
 --값의byte 수 리턴
 
-select emp_name,lengthb(emp_name),
-email,lengthb(email)
-from employee;
+SELECT
+    emp_name,
+    lengthb(emp_name),
+    email,
+    lengthb(email)
+FROM
+    employee;
 
 --insert (string,searh[,position[,occurence]])
 --string 에서 search 가 위치한 index 를반환.
 --oracle에서는 1-based index ,1부터 시작
 --occurence 출현순서
             
-select instr('kh정보교육원 국가정보원', '정보'),  --3
-            instr('kh정보교육원 국가정보원', '안녕'),    --0 값없음
-            instr('kh정보교육원 국가정보원', '정보', 5),  --11
-            instr('kh정보교육원 국가정보원 정보문화사', '정보', 1, 3), --15
-            instr('kh정보교육원 국가정보원', '정보', -1) --11 startPostion이 음수면 뒤에서부터 검색
-from dual;
+SELECT
+    instr('kh정보교육원 국가정보원', '정보'),  --3
+                instr('kh정보교육원 국가정보원', '안녕'),    --0 값없음
+                instr('kh정보교육원 국가정보원', '정보', 5),  --11
+                instr('kh정보교육원 국가정보원 정보문화사',
+    '정보', 1, 3), --15
+                instr('kh정보교육원 국가정보원', '정보', - 1) --11 startPostion이 음수면 뒤에서부터 검색
+FROM
+    dual;
 
 --email 컬럼값중 '@'의 위치는 ? (이메일,인덱스)
-select  email , --테이블 
-    instr(email,'@')
-    from employee;      
+SELECT
+    email, --테이블 
+        instr(email, '@')
+FROM
+    employee;      
     
 --substr(string,startindex[,length])            --[] 생략의 의미
 --string 에서 startindex부터length 개수 만큼 잘라내어 리턴
 --length 생략시에는 문자열 끝까지 반환
 
-select substr('show me the money',6,2), --me
-    substr('show me the money',6),--me the money
-    substr('show me the money',-5,3)--mon
-        from dual;
+SELECT
+    substr('show me the money', 6, 2), --me
+        substr('show me the money', 6),--me the money
+        substr('show me the money', - 5, 3)--mon
+        FROM
+    dual;
         
 --@실습문제 :사원명에서 성(1글자로 가정) 만 중복없이 사전순으로 출력
-select distinct substr(emp_name,1,1) "성 "     --별칭명 
-from employee
-order by "성";
-
+SELECT DISTINCT
+    substr(emp_name, 1, 1) "성 "     --별칭명 
+FROM
+    employee
+ORDER BY
+    "성";
 
 -- lpad|rpad(string, byte[, padding_char])
 -- byte수의 공간에 string을 대입하고, 남은 공간은 padding_char를 (왼쪽|오른쪽) 채울것.
 -- padding char는 생략시 공백문자.
 
-select lpad(email, 20, '#'),
-            rpad(email, 20, '#'),
-            '[' || lpad(email, 20) || ']',      --
-            '[' || rpad(email, 20) || ']'
-from employee;
-
+SELECT
+    lpad(email, 20, '#'),
+    rpad(email, 20, '#'),
+    '['
+    || lpad(email, 20)
+    || ']',      --
+                '['
+    || rpad(email, 20)
+    || ']'
+FROM
+    employee;
 
 --@실습문제: 남자사원만 사번, 사원명, 주민번호, 연봉 조회
 --주민번호 뒤  6자리는 ****** 숨김처리할 것.
-select emp_id,
-            emp_name,
-            substr(emp_no, 1, 8) || '******' emp_no,
-            rpad(substr(emp_no, 1, 8), 14, '*') emp_no,
-            (salary + (salary * nvl(bonus, 0))) * 12 annul_pay
-from employee
-where substr(emp_no, 8, 1) in ('1', '3');
+SELECT
+    emp_id,
+    emp_name,
+    substr(emp_no, 1, 8)
+    || '******'                                       emp_no,
+    rpad(substr(emp_no, 1, 8), 14, '*')               emp_no,
+    ( salary + ( salary * nvl(bonus, 0) ) ) * 12          annul_pay
+FROM
+    employee
+WHERE
+    substr(emp_no, 8, 1) IN ( '1', '3' );
 
 --************************************************************
 --b .문자처리함수
@@ -599,47 +835,58 @@ where substr(emp_no, 8, 1) in ('1', '3');
 --mod (피젯수,젯수)
 --나머지 함수, 나머지 연산자%가 없다.
 
-select mod(10,2)
-, mod(10,3),
-mod(10,4)
-from dual;
-
+SELECT
+    mod(10, 2),
+    mod(10, 3),
+    mod(10, 4)
+FROM
+    dual;
 
 --입사년도가 짝수인 사원 조회
-select emp_name, 
-            extract(year from hire_date) year --날짜함수 년도추출
-from employee
+SELECT
+    emp_name,
+    EXTRACT(YEAR FROM hire_date) year --날짜함수 년도추출
+FROM
+    employee
 --where mod(year, 2) = 0 -- ORA-00904: "YEAR": invalid identifier
-where mod(extract(year from hire_date),2)=0         -- 입력된 날짜에서 추출하고자 하는 연도,월,시간,분 초 등을 반환하는 함수
-order by year;
-
+WHERE
+    mod(EXTRACT(YEAR FROM hire_date), 2) = 0         -- 입력된 날짜에서 추출하고자 하는 연도,월,시간,분 초 등을 반환하는 함수
+ORDER BY
+    year;
 
 --ceil(number)
 --소수점기준으로 올림
-select ceil(123.456),
-    ceil(123.456*100)/100 --부도소수점
-from dual;
+SELECT
+    ceil(123.456),
+    ceil(123.456 * 100) / 100 --부도소수점
+FROM
+    dual;
 
 --floor (number)
 --소수점기준으로버림
-select floor(456.789),
-    floor(456.789*10)/10
-from dual;
+SELECT
+    floor(456.789),
+    floor(456.789 * 10) / 10
+FROM
+    dual;
 
 --round(number[,position])
 --position 기준(기본값 0, 소수점기준)으로 반올림처리
-select round(234.567),
-round (234.567,2),
-    round(235.567,-1)
-from dual;
+SELECT
+    round(234.567),
+    round(234.567, 2),
+    round(235.567, - 1)
+FROM
+    dual;
 
 --trunc(number,[,position])
 --버림
-select trunc(123.567),
-    trunc(123.567,2) ,-- 소수점 둘째자리 까지 남기면됩니다.
-    trunc (1234.56 ,1)
-from dual;
-
+SELECT
+    trunc(123.567),
+    trunc(123.567, 2),-- 소수점 둘째자리 까지 남기면됩니다.
+        trunc(1234.56, 1)
+FROM
+    dual;
 
 --****************************************************
 -- c. 날짜처리함수
@@ -647,38 +894,51 @@ from dual;
 --날짜형 + 숫자 = 날짜형
 --날짜형 - 날짜형 = 숫자
 
-
 --add_months(date, number)
 --date기준으로 몇달(number) 전후의 날짜형을 리턴
-select sysdate,
-            sysdate + 5,
-            add_months(sysdate, 1),
-            add_months(sysdate, -1),
-            add_months(sysdate + 5, 1)      --말일 표시??
-from dual;
+SELECT
+    sysdate,
+    sysdate + 5,
+    add_months(sysdate, 1),
+    add_months(sysdate, - 1),
+    add_months(sysdate + 5, 1)      --말일 표시??
+FROM
+    dual;
 
-select add_months(to_date('2021/06/30','yyyy/mm/dd')+1,1)
-from dual;
+SELECT
+    add_months(TO_DATE('2021/06/30', 'yyyy/mm/dd') + 1, 1)
+FROM
+    dual;
 --months_between(미래,과거)
 --두날짜형의 개월수 차이를 리턴한다.
-select sysdate,
-       to_date ('2021/07/08'),--날짜형 변환함수
-     trunc(months_between(to_date('2021/07/08'),sysdate),1) diff
-from dual;
+SELECT
+    sysdate,
+    to_date('2021/07/08'),--날짜형 변환함수
+         trunc(months_between(to_date('2021/07/08'), sysdate), 1) diff
+FROM
+    dual;
 
 --이름 입사일,군무개월수(n개월),근무개월수(n년 m개월)조회
 
-select emp_name,
-            hire_date,
-            trunc(months_between(sysdate, hire_date)) || '개월' 근무개월수,
-            trunc(months_between(sysdate, hire_date) / 12) || '년 ' ||
-            trunc(mod(months_between(sysdate, hire_date), 12)) || '개월' 근무개월수
-from employee;
+SELECT
+    emp_name,
+    hire_date,
+    trunc(months_between(sysdate, hire_date))
+    || '개월'   근무개월수,
+    trunc(months_between(sysdate, hire_date) / 12)
+    || '년 '
+    || trunc(mod(months_between(sysdate, hire_date), 12))
+    || '개월'   근무개월수
+FROM
+    employee;
 
-select emp_name,
-            hire_date,
-            trunc(months_between(sysdate,hire_date)) || '개월' 근무개월수,
-            trunc(months_betww
+SELECT
+    emp_name,
+    hire_date,
+    trunc(months_between(sysdate, hire_date))
+    || '개월' 근무개월수,
+    trunc
+( months_betww
 
 --extract(year | month | day | hour | minute | second  from date) : number
 --날짜형 데이터에서 특정필드만 숫자형으로 리턴.
@@ -690,13 +950,11 @@ select extract(year from sysdate) yyyy,
             extract(minute from cast(sysdate as timestamp))ss
         from dual;
 
-
 --trunc(date)
 --시분초 정보를 제외한 년월일 정보만 리턴
 select to_char(sysdate, 'yyyy/mm/dd hh24:mi:ss') date1,
             to_char(trunc(sysdate), 'yyyy/mm/dd hh24:mi:ss') date2
 from dual;
-
 
 
 --****************************************************
@@ -779,7 +1037,6 @@ from dual;
 
 
 
-
 select to_char(
                 sysdate + to_yminterval('01-02') + to_dsinterval('003 04:05:06'),
                 'yyyy/mm/dd hh24:mi:ss'
@@ -815,7 +1072,6 @@ select extract( day from
 from dual;
 
 
-
 --****************************************************
 -- e.기타함수
 --****************************************************
@@ -829,7 +1085,6 @@ select emp_name,
             nvl(bonus, 0) nvl1,
             nvl2(bonus, '있음', '없음') nvl2
 from employee;
-
 
 --선택함수1
 --decode(expr, 값1, 결과값1, 값2, 결과값2, .....[, 기본값])
@@ -853,7 +1108,6 @@ select emp_name,
             decode(substr(emp_no, 8, 1), '1', '남', '3', '남', '여') gender
 from employee
 where  decode(substr(emp_no, 8, 1), '1', '남', '3', '남', '여') = '여';     --여사원만 조회 
-
 
 select emp_name, 
             emp_no,
@@ -913,7 +1167,6 @@ select job_code,
             end job_code
 from employee;
 
-
 select emp_name 이름,
        job_code 직급코드,
        case 
@@ -952,7 +1205,6 @@ from employee;
 from employee
 where dept_code = 'D5';
 
-
 --부서코드가 D1인 부서원의 평균급여 조회 
  select to_char(round(avg(salary), 1), 'fmL999,999,999,999') avg
 from employee
@@ -975,7 +1227,6 @@ select count(*),
         count(dept_code)
 from employee;
 
-
 --보너스 받는사원수 조회
 select count(*)
 from employee 
@@ -984,7 +1235,6 @@ where bonus is not null;
 select count(*)
 from employee 
 where bonus is null;       --보너스 없는사람만조회 
-
 
 select sum( case
                 when  bonus is not null then 1
@@ -996,7 +1246,6 @@ from employee;
 --사원이 속한 부서 총수 (중복없음)
 select count(distinct dept_code)
 from employee;
-
 
 select count(distinct job_code)
 from employee;
@@ -1025,10 +1274,8 @@ select emp_name,
             (decode(substr(emp_no, 8, 1), '1', 1900, '2', 1900, 2000) + substr(emp_no, 1, 2)) + 1 age
 from employee;
 
-
 --yy는 현재년도 2021 기준으로 현재세기(2000~ 2099)범위에서 추측한다.
 --rr는 현재년도 2021 기준으로(1950~2049)범위에서 추측한다 
-
 
 --============================
 --DQL2
@@ -1051,7 +1298,6 @@ select job_code,
     from employee
     group by job_code;      --세부적인 그룹핑 저장 컬럼기준
 
-
 --부서코드 코드별 사원수 조회
 select job_code,
             trunc(avg(salary), 1)
@@ -1059,14 +1305,12 @@ from employee
 group by job_code
 order by job_code;
 
-
 --부서코드별 사원수,급여합계 조회
 select nvl( dept_code, 'intern'),         --중복제거 distinct  
        count(emp_no)
 from employee
 group by dept_code
 order by dept_code;
-
 
 select dept_code 부서코드,
         count(*)사원수,
@@ -1083,14 +1327,12 @@ select decode(substr(emp_no, 8, 1), '1', '남', '3', '남', '여') gender,
 from employee
 group by decode(substr(emp_no, 8, 1), '1', '남', '3', '남', '여');
 
-
 --직급코드 j1 을 제외하고, 입사년도별 인원수를 조회
 select extract(year from hire_date)yyyy, 
 count(*)
 from employee
 where job_code != 'J1'
 group by extract(year from hire_date); 
-
 
 --직급코드 j2 만 포함한  입사년도별 인원수를 조회
 select extract(year from hire_date)yyyy, 
@@ -1128,7 +1370,6 @@ group by dept_code
 having avg(salary) >= 3000000
 order by 1;
 
-
 --부서별 인원수가 3명이상인 직급과 인원수 조회 
 select dept_code,
     count(*)
@@ -1160,7 +1401,6 @@ group by manager_id
 having count(manager_id) >= 2
 order by 1;
 --컬럼 (manager_id )를 넣어서 null값을 없애기
-
 
 --rollup |cube (col1,, col2...)
 --group by 절에 사용하는 함수
@@ -1249,7 +1489,6 @@ select * from department;
 --join 문법
 --1.ANSI 표준문법     :모든 DBMS 공통문법
 --2.Vendor 별 문법 :DBMS별로 지원하는 문법 ,오라클 전용문법 (컴마)사용 
-
 
 --테이블 별칭
 select employee.emp_name,
@@ -1517,7 +1756,6 @@ from employee E
         on E.dept_code != D.dept_id
 order by E.emp_id, D.dept_id;
 
-
 --===========================
 --SET OPERATOR
 --===========================
@@ -1556,36 +1794,33 @@ select emp_id, emp_name, dept_code, salary
 from employee
 where salary > 3000000;
 
-
 --A UNION B
 select emp_id, emp_name, dept_code, salary
 from employee
 where dept_code = 'D5'
 --order by salary 마지막 entity에서만 사용가능
-union
+union           -- 오름차순 
 select emp_id, emp_name, dept_code, salary
 from employee
 where salary > 3000000
 order by dept_code;
-
 
 
 --A UNION ALL B
 select emp_id, emp_name, dept_code, salary
 from employee
 where dept_code = 'D5'
-union all
+union all       --union 합집합: 중복된 행x , 첫컬럼 오름차순 정렬
 select emp_id, emp_name, dept_code, salary
 from employee
 where salary > 3000000
 order by dept_code;
 
-
 --A INTERSECT B
 select emp_id, emp_name, dept_code, salary
 from employee
 where dept_code = 'D5'
-intersect
+intersect       --교집합 
 select emp_id, emp_name, dept_code, salary
 from employee
 where salary > 3000000;
@@ -1594,7 +1829,7 @@ where salary > 3000000;
 select emp_id, emp_name, dept_code, salary
 from employee
 where dept_code = 'D5'
-minus
+minus       --차집합 
 select emp_id, emp_name, dept_code, salary
 from employee
 where salary > 3000000;
@@ -1606,7 +1841,6 @@ minus
 select emp_id, emp_name, dept_code, salary
 from employee
 where dept_code = 'D5';
-
 
 --=========================================
 --SUB QUERY
@@ -1628,7 +1862,6 @@ from employee A, employee B
 where A.manager_id = B.emp_id
       and A.emp_name = '노옹철';
 
-
 --노옹철사원의 관리자 이름을 조회
 select E1.emp_name 사원명,
         E2.emp_name 관리자
@@ -1643,7 +1876,6 @@ select manager_id
 from employee
 where emp_name ='노옹철';
 
-
 --노옹철사원의 관리자 이름을 조회 sub query 로 이용한 
 select emp_name
 from employee
@@ -1656,7 +1888,7 @@ where emp_id =(select manager_id
 2.다중행 단일컬럼 서브쿼리 
 3.다중열  서브쿼리(단일행/다중행)
 
-4.상관서브쿼리
+4.상관서브<---->쿼리
 5.스칼라 서브쿼리 
 6.inline-view 
 */
@@ -1669,7 +1901,6 @@ where emp_id =(select manager_id
 select emp_name 급여
 from employee
 where salary > (select avg(salary) from employee);      --전체평균(select(salary) from employee)
-
 
 select emp_name
         ,salary
@@ -1721,6 +1952,14 @@ where dept_code in (select  dept_code
 from employee
  where emp_name in('송종기','하이유')     -- 송종기 ,하이유 속한 부서원 체크 
 );
+
+select emp_name,dept_code
+from employee
+where dept_code in (select  dept_code
+from employee
+ where emp_name in('대북혼','심봉선')     -- 대북혼 ,심봉선 속한 부서원 체크 
+);
+
 select  dept_code
 from employee
  where emp_name in('송종기','하이유');
@@ -1778,7 +2017,6 @@ where (dept_code,job_code )= (select dept_code, job_code
 from employee
 where quit_yn = 'Y');
 
-
 --manager 가 존재하지않는 사원과 같은부서코드, 직급코드를 가진 사원조회
 select emp_name,
             dept_code,
@@ -1798,6 +2036,13 @@ where (nvl(dept_code, '인턴'), salary) in (select nvl(dept_code, '인턴'), ma
                              group by dept_code)        --group  by 절 
 order by 2;
 
+--부서별  최소급여를 받는 사원조회(사원명,부속코드,급여)
+select emp_name 사원명 , nvl(dept_code, '인턴') 부서코드, salary 급여         --테이블
+from employee
+where (nvl(dept_code, '인턴'), salary) in (select nvl(dept_code, '인턴'), min(salary)
+                             from employee
+                             group by dept_code)        --group  by 절 
+order by 2;
 
 -----------------------------------
 --상관 서브쿼리 
@@ -1812,7 +2057,13 @@ from employee E     --메인쿼리 테이블 별칭이 반드시필요
 where salary > (select avg(salary)
                 from employee
                 where job_code = E.job_code);
-
+                
+select emp_name,dept_code,salary
+from employee E 
+where salary>(select avg (salary)
+                from employee 
+                where dept_code=E.dept_code);
+                
 
 select job_code ,avg(salary) avg 
 from employee
@@ -1836,3 +2087,447 @@ from employee E         --메인쿼리 테이블 별칭 필요
 where salary < (select avg(salary)
                 from employee
                 where nvl(dept_code, '인턴') = nvl(E.dept_code, '인턴'));   --where 인턴포함
+                
+ ---부서별 평균급여보다 많은급여를 받는사원조회 
+select emp_name,
+        nvl(dept_code, '인턴'),       --인턴 포함
+        salary
+from employee E         --메인쿼리 테이블 별칭 필요
+where salary > (select avg(salary)
+                from employee
+                where nvl(dept_code, '인턴') = nvl(E.dept_code, '인턴'));   --where 인턴포함
+
+--exists 연산자
+--exists(sub-query) sub-query에 행이 존재하면 참, 행이 존재하지않으면 거짓 
+
+select *
+from employee 
+where 1=1;     --true       결과행이 존재한다.  결과집합이 참일때만 결과값이나온다
+
+select *
+from employee 
+where 1=0;     --false      결과행이 존재하지않는다.
+
+--행이 존재하는 subque :exists true
+select *
+from employee 
+where exists(select *
+from employee 
+where 1=1
+);
+--행이 존재하지않는 subquery:exists false
+select *
+from employee 
+where exists(select *
+from employee 
+where 1=0
+);
+
+--관리하는 직원이 한명이라도 존재하는 관리자 사원조회 
+--내 emp_id 값이 누군가의 manager_id로 사용된다면,나는 관리자 ! 
+--내 emp_id 값이 누군가의 manager_id로 사용된다면,나는 관리자 가아님
+select emp_id,emp_name 
+from employee   e
+where exists(
+    select*
+    from employee 
+    where manager_id =e.emp_id
+);
+
+select*     --행의 존재여부  확인
+from  employee e;
+
+select * 
+from employee 
+where manager_id='203';
+
+
+--부서테이블에서 실제 사원이 존재하는 부서만조회 (부서코드 설명)
+select dept_id,이블
+            dept_title 
+            from department d
+            where exists (
+                    select *        --행 존재 여부 확인  1도 사용가능 존재여부 
+                    from employee
+                    where dept_code = d.dept_id
+                    );
+                    
+                    select*from department d;
+                    
+                select 1 
+                from employee 
+                where dept_code='D2';
+--부서테이블에서 실제 사원이 존재하지않는 부서만조회 (부서코드 설명)  
+--not exists (sub-query) :sub-query의 결과행이 존재하지않으면 true,
+--sub-query의 결과행이 존재하면 false
+
+select dept_id,
+            dept_title 
+            from department d
+            where not exists (
+                    select *        --행 존재 여부 확인  1도 사용가능 존재여부 
+                    from employee
+                    where dept_code = d.dept_id
+                    );
+--최대/최소값 구하기(not exists)
+--가장 많은급여 를 받은 사원을 조회
+--가장많은 급여를받는다 -> 본인보다 많은급여를 받는사원이 존재하지 않는다 
+select emp_name,
+            salary  
+            from employee e 
+            where not exists (
+                    select *        --행 존재 여부 확인  1도 사용가능 존재여부 
+                    from employee
+                    where salary > e.salary
+                    );
+                    
+--ex)가장 적은급여를받는다 
+select emp_name,
+            salary  
+            from employee e 
+            where not exists (
+                    select *        --행 존재 여부 확인  1도 사용가능 존재여부 
+                    from employee
+                    where salary < e.salary
+                    );
+---------------------------------------
+--SCALA SUBQUERY
+---------------------------------------
+--서브쿼리의 실행결과 1 (단일행 단일컬럼) 인 상관서브쿼리 
+
+--관리자이름조회 
+
+select emp_name,
+       nvl((
+        select emp_name
+        from employee
+        where emp_id = e.manager_id
+        ) ,' ')manager_name 
+        from employee e;
+--사원명,부서명 ,직급명 조회 
+select emp_name 사원명 ,
+         nvl ((
+                select dept_title       부서명 
+                from department
+                where E.dept_code = dept_id
+            ),'인턴') dept_name,
+            (
+                select job_name     직급명 
+                from job
+                where E.job_code= job_code
+            ) job_name
+from employee E;
+
+----------------------------------
+--INLINE VIEW
+----------------------------------
+--from 절에 사용된 subquery .가상테이블.
+
+--여사원의 사번, 성별조회 
+select emp_id,
+            emp_name,
+            decode(substr(emp_no,8,1),'1','남','3','남','여') gender
+from employe,
+WHERE
+    decode(substr(emp_no, 8, 1), '1', '남', '3', '남',
+           '여') = '여';
+
+--INLINE VIEW
+    SELECT
+    *
+FROM
+    (
+        SELECT
+            emp_id,
+            emp_name,
+            decode(substr(emp_no, 8, 1), '1', '남', '3', '남',
+                   '여') gender
+        FROM
+            employee
+    );
+
+SELECT
+    *
+FROM
+    (
+        SELECT
+            emp_id,
+            emp_name,
+            decode(substr(emp_no, 8, 1), '1', '남', '3', '남',
+                   '여') gender
+        FROM
+            employee
+    );
+                    
+                    
+SELECT emp_id,
+                emp_name,
+                gender
+FROM
+    (
+        SELECT
+            emp_id,
+            emp_name,
+            decode(substr(emp_no, 8, 1), '1', '남', '3', '남',
+                   '여') gender
+        FROM
+            employee
+    );
+--30~50세 사이의 여사원 조회 (사번,이름,부서명,나이,성별)
+--inline-view 나이,성별
+select emp_id 사번,
+           emp_name 이름,
+           nvl(dept_code,'인턴') 부서명,
+           age 나이,
+           gender 성별
+from (
+    select emp_id,
+    emp_name,
+    dept_code,
+    decode(substr(emp_no, 8, 1), '1', '남', '3', '남', '여') gender,
+    extract(year from sysdate)-(decode(substr(emp_no, 8, 1), '1', 1900+substr(emp_no, 1, 2), '2', 1900+substr(emp_no, 1, 2), 2000+substr(emp_no, 1, 2)))+1 age
+    from employee
+)
+where gender ='여'
+and age > 30
+and age < 50;
+--강사님 풀이버전 
+select *
+from (
+            select emp_id, 
+                        emp_name,
+                        nvl((select dept_title from department where dept_id = E.dept_code), '인턴') dept_title,
+                        extract(year from sysdate) -
+                        (decode(substr(emp_no, 8, 1), '1', 1900, '2', 1900, 2000) + substr(emp_no, 1, 2)) + 1 age,
+                        decode(substr(emp_no, 8, 1), '1', '남', '3', '남', '여') gender
+            from employee E
+        ) 
+where age between 30 and 50 
+    and gender = '여';
+--================================
+--고급쿼리
+--================================
+
+-----------------------------------
+--TOP-N분석
+-----------------------------------
+--급여를 많이 받는 top-5 ,입사일이 가장 최근인 Top-10 조회등 
+
+select emp_name,salary
+from employee
+order by salary desc;
+
+
+--rownum|rowid 
+--rownum :테이블 레코드 추가시 1부터 1씩증가하면서 부여된 일련번호,부여된 번호는 변경불가
+--               inlineview생성시,where절 사용시 rownum은 새로 부여된다
+--rownum 행번호
+--rowid :테이블 특정레코드에 접근하기 위한 논리적 주소값 
+
+select rownum,rowid,e.*
+from employee e
+order by salary desc;
+--where절 사용시 rownum새로부여 
+select rownum, e.*
+from employee e 
+where dept_code='D5';
+
+select rownum, E.*
+from (
+        select 
+--                    rownum old,
+                    emp_name, 
+                    salary
+        from employee
+        order by salary desc
+        ) E
+where rownum between 1 and 5;
+
+--입사일이 빠른 10명 조회 
+select rownum, E.*
+from (
+        select rownum old, emp_name, hire_date
+        from employee
+        order by hire_date asc      --느린경우 desc   
+        ) E
+where rownum between 1 and 10;      --10명조회 구간
+
+--ex)입사일 느린 10명 조회
+
+select rownum, E.*
+from (
+        select rownum old, emp_name, hire_date
+        from employee
+        order by hire_date desc
+        ) E
+where rownum between 1 and 10;
+
+ 
+--입사일이 빠른순서 로 6번째에서 10번째 사원조회
+--rownum은 where절이 시작하면서 부여되고, where절이 끝나면 모든행에 부여가 끝난다.
+--offset이 있다면, 정상적으로 가져올수가 없다.
+--inlineview를 한계층 더 사용해야한다.
+select E.*
+from (
+            select rownum rnum, E.*
+            from (
+                        select emp_name, 
+                                    hire_date
+                        from employee
+                        order by hire_date asc
+                    ) E
+            ) E        
+where rnum between 6 and 10;
+
+
+
+--직급이 대리인 사원중에 연봉 Top-3조회(순위,이름,연봉)
+select emp_name,
+        salary * 12
+from (
+        select rownum old, emp_name, salary
+        from employee E
+        where job_code in (select job_code from job where job_name = '대리')     
+        order by  salary * 12  desc -- 연봉3순위
+      ) E
+where rownum < 3+1;     
+
+-- 직급이 대리인 사원 중에서 연봉 4~6위(순위,이름, 연봉)
+
+select E.*
+from ( select rownum rnum, E.*     
+from (
+        select  emp_name, salary * 12
+        from employee E
+        where job_code in (select job_code from job where job_name = '대리')
+        order by  salary * 12  desc
+      ) E
+      ) E
+where rnum between 4 and 6; 
+--강사님이 풀었던  방법
+select E.*
+from (
+        select rownum rnum, 
+                    E.*
+        from (
+                select emp_name,
+                            (salary + (salary * nvl(bonus, 0))) * 12 annual_salary
+                from employee
+                where job_code = (  
+                                                    select job_code
+                                                    from job
+                                                    where job_name = '대리'
+                                                )
+                order by annual_salary desc
+                ) E
+        ) E
+where rnum between 4 and 6;
+
+--부서별 평균급여 Top-3조회 (순서,부서명 ,평균급여)
+select rownum 순위,
+       (select dept_title from department where dept_id = E.dept_code) 부서명,
+       avg 평균급여
+from (
+      select dept_code, trunc(avg(salary)) avg
+      from employee
+      group by dept_code
+      order by avg desc
+     ) E
+where rownum <= 3;
+
+--급여 상위 6~10위 조회
+select *
+from (
+    select rownum rnum, E.*
+    from (
+        select emp_name, salary
+        from employee
+        order by salary desc -- level 1 : 랭킹 1위부터 10위까지는 여기서 이미 정렬됨
+        ) E 
+    ) E -- level2 : 여기서 새로 rownum 부여하는 작업
+where rnum between 6 and 10;
+
+
+/*
+select E.*
+from (
+            select rownum rnum, E.*
+            from (
+                        <<정렬된 ResultSet>>
+                    ) E
+            ) E        
+where rnum between 시작 and 끝;
+*/
+--with구문
+--inlineview서브쿼리에 별칭을 지정해서 재사용하게 함.
+with emp_hire_date_asc
+as
+(
+select emp_name, 
+            hire_date
+from employee
+order by hire_date asc
+)
+select E.*
+from (
+            select rownum rnum, E.*
+            from emp_hire_date_asc E
+            ) E        
+where rnum between 6 and 10;
+
+-------------------------------
+--WINDOW FUNCTION
+-------------------------------
+--행과 행간의 관계를 쉽게 정의하기 위한 표준함수
+--1.순위함수
+--2.집계함수
+--3.분석함수
+
+/*
+window_funcion(args) over([partiotion by절] [order by 절] [windowing절 ])
+1.args 윈도우 함수인자 0~ n개 지점 
+2.partition by절: 그룹핑
+3.order by절 :정렬기준 컬럼
+4.windowing절 :처리할 행의 범위를 지정 
+*/
+
+--rank()  over() :순위를 지정 
+--dense_rank  over(): 빠진숫자없이 순위를 지정 
+select emp_name,
+            salary, 
+            rank()over(order by salary desc)rank,--내림차순 정렬
+            dense_rank()over(order by salary desc)rank
+from employee ;
+
+--그룹핑에 따른 순위지정 
+select E.*
+from (
+        select emp_name,
+                    dept_code,
+                    salary,
+                    rank() over(partition by dept_code order by salary desc) rank_by_dept
+        from employee
+        ) E
+where rank_by_dept between 1 and 3;
+
+--sum() over() 
+--일반 컬럼과 같이 사용할수있다 .
+select emp_name,
+            salary,
+            dept_code,
+--(select sum (salary) from employee)sum,
+        sum(salary) over()"전체사원급여합계",
+        sum(salary) over (partition by  dept_code)"부서별 급여합계",
+        sum(salary) over (partition by  dept_code order by salary)"부서별 급여누계_급여"
+         from employee;
+
+--avg() over() 
+select  emp_name,   
+            dept_code,
+            round(avg(salary) over(partition by dept_code)) "부서별 평균급여" 
+from employee;
+--count() over() 
+select emp_name,    
+            dept_code,
+            count(*) over(partition by dept_code) cnt_by_dept
+            from employee;
