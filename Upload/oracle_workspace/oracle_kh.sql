@@ -820,9 +820,7 @@ SELECT
     emp_id,
     emp_name,
     substr(emp_no, 1, 8)
-    || '******'                                       emp_no,
-    rpad(substr(emp_no, 1, 8), 14, '*')               emp_no,
-    ( salary + ( salary * nvl(bonus, 0) ) ) * 12          annul_pay
+    || '******'                                      
 FROM
     employee
 WHERE
@@ -1355,7 +1353,7 @@ select nvl(dept_code,'인턴')부서별 ,
        count(decode(substr(emp_no, 8, 1),'1','남','3','남', '여')) 인원      --count 인원조회 
 from employee
 group by dept_code, 
-         decode(substr(emp_no, 8, 1),'1','남','3','남', '여')
+         decode(substr(emp_no, 8, 1),'1','남','3','남', '여')  
 order by 1,2;     --순서 정렬 
 ------------------------------
 --HAVING
@@ -2531,3 +2529,1509 @@ select emp_name,
             dept_code,
             count(*) over(partition by dept_code) cnt_by_dept
             from employee;
+            
+--===================================================
+        DML
+--====================================================
+--Data Manipulation Language
+--CRUD Create Retrieve Update Delete 테이블 행에 대한 명령어
+--insert  행추가
+--update 행수정 
+--delete 행삭제
+--select (DQL)
+
+-----------------------------------------
+--INSERT
+-----------------------------------------
+--1.insert into 테이블 values(컬럼1값,컬럽2값......); 
+--모든컬럼을 빠짐없이 순서대로 작성해야한다.
+--2.insert into  테이블 (컬럼1,컬럼2,....)values (컬럽1값, 컬럼2값,...)
+--컬럼을 생략가능,컬럼순서도 자유롭다
+-- not null 컬럼이면서 , 기본값이 없다면 생략이 불가하다.
+
+create table dml_sample(
+id number,
+nick_name varchar2(100) default '홍길동',
+name varchar2(100) not null,
+enroll_date date default sysdate not null
+);
+--타입1
+select*from dml_sample;
+
+insert into dml_sample 
+values (100, default , '신사임당',default);
+
+
+insert into dml_sample 
+values (100, default , '깔끔한청년',default);
+
+--타입2
+insert into dml_sample(id,nick_name, name,enroll_date)
+values(200,'제임스','이왕',sysdate);     --원하는컬럼만 골라쓸수 있다 
+
+insert into dml_sample(name,enroll_date)
+values('이왕',sysdate);           --nullable한 컬럼은 생략가능하다. 기본값이 있다면 기본값이 적용된다.
+
+insert into dml_sample(id,enroll_date)--  SQL 오류: ORA-00926: missing VALUES keyword
+valuse(300,sysdate);
+
+insert into dml_sample (name)
+values('윤봉길');
+
+insert into dml_sample (name)
+values('배기원');
+
+
+--서브쿼리를 이용한 insert
+create table emp_copy
+as 
+select*
+from employee
+where 1=2; --테이블 구조만 복사해서 테이블을 생성
+
+select*from emp_copy;
+
+insert into emp_copy(       --24개행 생성 insert를 생성 
+select*
+from employee
+);
+rollback;
+insert into emp_copy(emp_id,emp_name,emp_no,job_code,sal_level)(
+select emp_id ,emp_name,emp_no,job_code,sal_level
+from employee
+);
+
+--emp_copy 데이터추가 
+select*from emp_copy;
+
+select *
+from user_tab_cols
+where table_name= 'EMP_COPY';
+
+--기본값 추가 
+alter table emp_copy
+modify quit_yn default 'N'
+modify  hire_date default sysdate;
+
+insert into emp_copy (emp_id,emp_name,emp_no,email,phone,dept_code,job_code,sal_level,salary,bonus,manager_id)
+values (100,'홍길동','123456-7890000','naver.com','01000000000','D5','J3','S4',2520000,0.25,204);
+insert into emp_copy (emp_id,emp_name,emp_no,email,phone,dept_code,job_code,sal_level,salary,bonus,manager_id)
+values (100,'배기원','970000-7890000','naver.com','01000000000','D5','J3','S4',2520000,0.25,204);
+
+--insert all 을 이용한 여러테이블에 동시에 데이터 추가 
+--서브쿼리를 이용해서 2개이상 테이블에 데이터를 추가.조건부 추가도 가능 
+--입사일 관리 테이블
+create table emp_hire_date
+as 
+select emp_id,emp_name,hire_date
+from employee
+where 1=2;
+
+--매니저 관리테이블
+create table emp_manager
+as
+select emp_id, 
+            emp_name, 
+            manager_id, 
+            emp_name manager_name
+from employee
+where 1 = 2;
+
+select*from emp_hire_date;
+select*from emp_manager;
+--manager_name 을 null로 변경
+alter table emp_manager
+modify manager_name null;
+
+--from 테이블과 to 테이블의 컬럼명이 같아야한다.
+insert all
+into emp_hire_date values(emp_id, emp_name, hire_date)
+into emp_manager values(emp_id, emp_name, manager_id, manager_name)
+select E.*, 
+            (select emp_name from employee where emp_id = E.manager_id) manager_name
+from employee E;
+
+
+--insert all을 이용한 여러행 한번에 추가하기 
+--오라클 다음문법은 지원하지 않는다.
+--insert into dml_sample 
+--values(1,'치킨','홍길동'),(1,'치킨','홍길동'),(2,'고구마','장발장'),(3,'베베','유관순');
+
+insert all
+into dml_sample values(1,'치킨','홍길동',default)
+into dml_sample values(2,'고구마','장발장',default)
+into dml_sample values(3,'베베','유관순',default)
+select* from dual; --더미쿼리
+
+
+--------------------------------------
+--UPDATE
+--------------------------------------
+--update 실행후에 행의수에는 변화가 없다.
+--0행,1행 이상을 동시에 수정한다.
+--dml 처리된 행의수를 반환한다.
+drop table emp_copy;
+
+create table emp_copy 
+as
+select * 
+from employee;
+
+select*from emp_copy;
+
+
+update emp_copy
+set dept_code ='D7',job_code='J3'
+where emp_id='202';
+
+commit; --메모리상 변경내역을 실제파일저장
+rollback; --마지막커밋시점으로 돌리기 
+
+update emp_copy
+set salary=salary+500000        --+=복합대입연산자 사용불가
+where dept_code='D5';
+
+--서브쿼리를 이용한 update
+--방명수 사원의 급여를 유재식사원과 동일하게 수정 
+update emp_copy
+set salary=(select salary from emp_copy where emp_name='유재식')
+where emp_name ='방명수';
+
+--임시환 사원의 직급을 과장 ,부서를 해외영업부3부로 수정하세요.
+--emp_copy
+update emp_copy
+set job_code = (select job_code from job where job_name = '과장'),        --직급을 과장 
+    dept_code = (select dept_id from department where dept_title = '해외영업3부') -- 부서 해외 영업3부
+where emp_name = '임시환';     --임시환 사원
+
+commit ;
+rollback ;
+
+---------------------------------
+--DELETE
+---------------------------------
+Select*from emp_copy;
+
+--delete from emp_copy
+--where emp_id ='211';
+
+--delete from emp_copy; 
+ 
+rollback;
+-----------------------------------
+--TRUNCATE
+-----------------------------------
+--테이블의 행을 자르는 명령.
+--DDL명령(create,alter,drop,truncate) 자동커밋 
+--before image 생성작업이 없으므로,실행속도가빠르다 
+
+truncate table emp_copy;
+
+select*from emp_copy;
+
+--=====================================
+--DDL
+--=====================================
+
+--Data Definition Language 데이터 정의어
+--데이터베이스 객체를 생성/수정/삭제 할수있는 명령어
+--create
+--alter
+--drop
+--truncate
+
+--객체종류
+--table,view,sequence,index,package,procedure,function ,trigger,synonym,scheduler,user..
+
+--주석 comment 
+--테이블,컬럼에 대한 주석을 달 수있다 . (필수)
+
+select *
+from user_tab_comments;
+
+select *
+from user_col_comments
+where table_name= 'TBL_Files';
+
+desc tbl_files;
+--테이블 주석
+comment on table tbl_files is '파일경로테이블';
+
+--컬럼 주석
+comment on column tbl_files.fileno is '파일 고유번호';
+comment on column tbl_files.filepath is ''; -- '' null 과 동일
+
+--수정/삭제 명령은 없다.
+--.... is ''; --삭제
+--===========================
+--제약조건constraint
+--===========================
+--테이블 생성수정시 컬럼값에 대한 제약조건 설정할수있다 .
+--데이터에 대한 무결성 integrity을 보장하기 위한것.
+--무결성은데이터를 정확하고,일관되게 유지하는것.
+
+/*
+1.not null :null을 허용하지않음.필수값
+2.unique :중복값을 허용하지않음
+3.primary key:not null+ unique 레코드식별자로써,테이블1개 허용 
+4.foreign key :데이터 참조무결성 보장,부모테이블의 데이터만 허용
+,5.check :저장가능한 값의범위 /조건을 제한
+
+일절 허용하지않음
+*/
+
+--제약 조건 확인
+--user_constraints(컬럼명이 없음)
+--uesr_cons_columns
+select*
+from user_constraints
+where table_name='EMPLOYEE';
+
+--C checj |not null
+--U unique
+--P primary key 
+--R foreign key
+select*
+from user_constraints
+where table_name='EMPLOYEE';
+
+--제약조건 검색
+select constraint_name,
+            uc.table_name,
+            ucc.column_name,
+            uc.constraint_type,
+            uc.search_condition
+from user_constraints uc
+    join user_cons_columns ucc
+        using(constraint_name)
+where uc.table_name = 'EMPLOYEE';
+
+-------------------------
+--NOT NULL
+--------------------------
+--필수입력 컬럼에 not null 제약조건을 지정한다.
+--default 값 다음에 컬럼레벨에 작성한다.
+--보통 제약조건명을 지정하지않는다.
+create table tb_cons_nn(
+id varchar2(20) not null,       --컬럼레벨 
+name varchar2(100)
+--테이블 레벨 
+);
+insert into tb_cons_nn values (null,'홍길동') ;--ORA-01400: cannot insert NULL into ("KH"."TB_CONS_NN"."ID")
+insert into tb_cons_nn values ('honggd', '홍길동');
+
+select * from tb_cons_nn;
+update tb_cons_nn
+set id = ''
+where id = 'honggd';--ORA-01407: cannot update ("KH"."TB_CONS_NN"."ID") to NULL
+
+------------------------------
+--UNIQUE
+------------------------------
+--이메일,주민번호,닉네임
+--전화번호 UQ 사용하지말것 
+
+--중복허용하지 않음
+create table tb_cons_uq (
+    no number not null,
+    email varchar2(50),
+    --테이블레벨
+    constraint uq_email unique(email)
+);
+
+insert into tb_cons_uq values(1, 'abc@naver.com');
+insert into tb_cons_uq values(2, '가나다@naver.com');
+insert into tb_cons_uq values(3, 'abc@naver.com');--ORA-00001: unique constraint (KH.UQ_EMAIL) violated
+insert into tb_cons_uq values(4, null); --null 허용
+select * from tb_cons_uq;
+
+--------------------------
+--PRIMARY KEY
+--------------------------
+--레코드 식별자 
+--not null +unique 기능을 가지고 있으며,테이블당 한개만 설정 가능 
+create table tb_cons_pk(
+    id varchar2(50),
+    name varchar2(100) not null,
+    email varchar2(200),
+    constraint pk_id primary key(id), 
+    constraint uq_email2 unique(email)
+);
+
+insert into tb_cons_pk
+values('honggd', '홍길동','hgd@google.com');--중복된오류값 
+
+insert into tb_cons_pk
+values(null, '홍길동','hgd@google.com');   --ORA-01400: cannot insert NULL into ("KH"."TB_CONS_PK"."ID")
+
+select * from tb_cons_pk;--ORA-00001: unique constraint (KH.PK_ID) violated
+
+select constraint_name,
+            uc.table_name,
+            ucc.column_name,
+            uc.constraint_type,
+            uc.search_condition
+from user_constraints uc
+    join user_cons_columns ucc
+        using(constraint_name)
+where uc.table_name = 'TB_CONS_PK';
+
+--복합 기본키(주키 |primark key | px)
+--여러컬럼을 조합해서 하나의 pk로 사용.
+--사용된 컬럼 하나라도 null이어서는 안된다.
+create  table  tb_order _pk(
+    user_id varchar(50),
+    order_date date,
+    amount number default 1 not null ,
+    constraint pk_user_id_order_date_primary key(user_id,order_date)
+    );
+    
+   insert into tb_order_pk
+values('honggd', sysdate, 3);
+
+insert into tb_order_pk
+values(null, sysdate, 3);--ORA-01400: cannot insert NULL into ("KH"."TB_ORDER_PK"."USER_ID")
+
+select user_id,
+            to_char(order_date, 'yyyy/mm/dd hh24:mi:ss') order_date,
+            amount
+from tb_order_pk;
+--
+
+
+
+-------------------------------------------
+-- FOREIGN KEY
+-------------------------------------------
+--참조 무결성을 유지하기 위한 조건
+--참조하고 있는 부모테이블의 지정 컬럼값 중에서만 값을 취할 수 있게 하는 것
+--참조하고 있는 부모테이블의 지정컬럼은 PK, UQ제약조건이 걸려있어야 한다.
+--department.dept_id(부모테이블)   <------  employee.dept_code(자식테이블)
+--자식테이블의 컬럼에 외래키(foreign key) 제약조건을 지정
+
+
+create table shop_member(       --부모
+    member_id varchar2(20),
+    member_name varchar2(30) not null,
+    constraint pk_shop_memer_id primary key(member_id)
+);
+insert into shop_member values('honnggd' ,'홍길동');
+insert into shop_member values('sinsa' ,'신사임당');
+insert into shop_member values('sejong' ,'세종대왕');
+
+
+select*from shop_member;
+
+--drop table shop_buy ;
+create table shop_buy(
+    buy_no number,
+    member_id varchar2(20),
+    product_id varchar2(50),
+    buy_date date default sysdate,
+    constraints pk_shop_buy_no primary key(buy_no),
+    constraints fk_shop_buy_member_id foreign key(member_id)
+                                      references shop_member(member_id)
+                                      on delete cascade
+);
+insert into shop_buy
+values(1, 'honggd', 'soccer_shoes', default);
+
+insert into shop_buy
+values(2, 'sinsa', 'basketball_shoes', default);
+
+select * from shop_buy;
+
+--fk기준으로 join ->relation
+--구매번호 회원아디 회원이름 구매물품 아이디 구매시각 
+select sb.buy_no,``
+            sm.member_id,
+            sm.member_name,
+            sb.product_id,
+            sb.buy_date
+from shop_member sm
+    join shop_buy sb
+    on member_id
+where sm.member_id = sb.member_id;
+--정규화 Normalization 
+--이상현상 방지(anormaly)
+select*
+from employee;
+
+select*
+from department;
+
+--삭제옵션
+--on delete restricted :기본값,참조하는 자식행이 있는경우, 부모행 삭제불가 
+--                                자식행을 먼저 삭제후 ,부모행을 삭제
+--on delete set null    :부모행 삭제시 자식컬럼은 null로 변경
+--on delete cascade :부모행 삭제시 자식행 삭제
+delete from shop_buy
+where member_id ='honggd';
+
+delete from shop_member
+where member_id ='honggd';
+
+select*from shop_buy;
+select *from shop_member;
+
+--식별관계|비식별관계
+--비식별관계:참조하고있는 부모컬럼값을 PK로 사용하지 않는경우. 여러행에서 참조가 가능(중복) 1:N관계
+--식별관계:참조하고있는 부모컬럼을 PK로 사용하는경우,부모행-자식행 사이에 1:1관계
+--drop table shop_nicknmae ;
+create table shop_nickname(
+member_id  varchar2(20),
+nickname  varchar2(100),
+constraints fk_member_id foreign key(member_id) references shop_member(member_id),      --references 다른테이블
+constraints pk_member_id primary key (member_id)
+);
+
+insert into shop_nickname
+values('sinsa','신솨112');
+
+select*from shop_nickname;
+----------------------------------
+--CHECK
+----------------------------------
+--해당 컬럼의 값의 범위를지정
+--null 입력가능
+
+--drop table tb_cons_ck;
+create table tb_cons_ck(
+gender char(1),
+num number,
+constraints ck_gender check(gender in ('M','F')),
+constraints ck_num  check(num between 0 and 100)
+);
+
+insert into tb_cons_ck
+values('M',50);
+
+insert into tb_cons_ck
+values('F',100);
+values('m', 50);--ORA-02290: check constraint (KH.CK_GENDER) violated
+insert into tb_cons_ck
+values('M', 1000);--ORA-02290: check constraint (KH.CK_NUM) violated
+
+------------------------------------------
+--CREATE
+------------------------------------------
+--subquery를 이용한 create는 not null 제약조건을 제외한 모든 제약조건 , 기본값등을 제거한다.
+
+create table  emp_bck
+as
+select* from employee;
+
+select *from emp_bck;
+
+
+
+--제약조건 검색
+select constraint_name,
+            uc.table_name,
+            ucc.column_name,
+            uc.constraint_type,
+            uc.search_condition
+from user_constraints uc
+    join user_cons_columns ucc
+        using(constraint_name)
+where uc.table_name = 'EMP_BCK';
+
+--기본값 확인
+select*
+from user_tab_cols
+where table_name = 'EMP_BCK';
+
+----------------------------
+--ALTER
+----------------------------
+--table 관련 alter문은 컬럼, 제약조건에 대해수정이 가능 
+/*
+서브 명령어
+
+-add 컬럼,제약조건 추가
+-modify 컬럼(자료형,기본값)변경(제약조건 변경불가)
+-rename 컬럼명, 제약조건명 변경
+-drop 컬럼, 제약조건 삭제
+
+*/
+
+create table tb_alter(
+no number
+);
+
+--add 컬럼
+--맨 마지막 컬럼으로 추가 
+ alter  table tb_alter add name  varchar2(100) not null ;
+--describe desc 헷갈리지 말기
+desc tb_alter;
+
+--add 제약조건
+--not null 제약조건은 추가가 아닌 수정(modify)으로 처리 
+alter table tb_alter 
+add constraints pk_tb_alter_no primary key(no);
+
+--제약조건 검색
+select constraint_name,
+            uc.table_name,
+            ucc.column_name,
+            uc.constraint_type,
+            uc.search_condition
+from user_constraints uc
+    join user_cons_columns ucc
+        using(constraint_name)
+where uc.table_name = 'TB_ALTER';
+
+--modify  컬럼
+--자료형,기본값 ,null여부 변경가능 
+--문자열에서 호화가능타입으로 변경가능(char--varchar2)
+
+alter table tb_alter 
+modify name varchar2(500) default '홍길동' null;
+
+desc tb_alter;
+--행이 있다면,변경하는데 제한이있다.
+--존재하는 값보다는 작은크기로 변경불가.
+--null값이 있는컬럼을 not null로 변경불가
+
+--modify 제약조건은 불가능 
+--제약조건은 이름변경외에 변경불가
+--해당 제약조건 삭제후 재생성 할것.
+
+--rename 컬럼
+alter table tb_alter
+rename column no to num;
+
+desc tb_alter;
+
+--rename 제약조건
+--제약조건 검색
+select constraint_name,
+            uc.table_name,
+            ucc.column_name,
+            uc.constraint_type,
+            uc.search_condition
+from user_constraints uc
+    join user_cons_columns ucc
+        using(constraint_name)
+where uc.table_name = 'TB_ALTER';
+
+
+alter table tb_alter
+rename constraint PK_TB_ALTER_NO to pk_tb_alter_num;
+
+--drop 컬럼
+desc tb_alter;
+
+alter table tb_alter
+drop column name;
+
+--drop 제약조건
+alter table tb_alter
+drop constraint pk_tb_alter_num;
+
+--테이블 이름 변경
+alter table tb_alter
+rename to  tb_alter_new;
+
+rename tb_alter_new to tb_alter_all_new;
+
+select*from tb_alter_all_new;
+
+--------------------------
+--DROP
+--------------------------
+--데이터베이스 객체(table,user,view등)삭제
+drop table tb_alter_all_new;
+
+
+
+--===========================
+--DCL
+--===========================
+--Data Control Language
+--권한부여 /회수 관련 명령어: grant /revoke 
+--TCL Transaction Control Language 를 포함한다. - commkit /rollback/savepoint
+--system 관리자 계정 시작!
+--qwerty 계정 생성 
+create user qwerty
+identified by qwerty
+default tablespace users;
+
+--접속권한 부여 
+--create session권한 또는 connect  롤을 부여 
+grant connect to  qwerty;
+
+--객체생성권한 부여 
+--create table,create index.... 권한을 일일이 부여 
+--resource 롤
+grant resource to qwerty;
+
+--system 관리자 계정끝!
+
+ --권한을조회
+ select* 
+ from user_sys_privs;       --권한
+ --권한,롤을 조회 
+  select* 
+ from user_role_privs;  --롤 
+ 
+ select*
+ from role_sys _privs; -- 부여받은 롤에 포함된권한
+
+
+--커피테이블 
+create table tb_coffe (
+    cname varchar2(100),
+    price number,
+    brand varchar2(100),
+    constraint pk_tb_coffe_cname primary key(cname)
+);
+
+insert into tb_coffe
+values('maxim', 2000, '동서식품');
+insert into tb_coffe
+values('kanu', 3000, '동서식품');
+insert into tb_coffe
+values('nescafe', 2500, '네슬레');
+
+select * from tb_coffe;
+
+commit;
+
+--qwertt 계정에게 열람권한 부여 
+grant select on tb_coffe to qwerty;
+
+--수정권한 부여 
+grant insert, update, delete on tb_coffe to qwerty;
+
+--수정권한 회수
+revoke insert, update, delete on tb_coffe from qwerty;
+--접근불가
+revoke select on tb_coffe from qwerty;
+
+--============================
+--DATABASE OBJECT 1
+--============================
+--DB의 효율적으로 관리하고, 작동하게하는 단위
+
+select distinct object_type
+from all_objects;
+
+-----------------------------
+--DATA DICTIONARY
+-------------------------------
+--일반사용자 관리자로부터 열람권한을 얻어 사용하는 정보조회테이블
+--읽기전용
+--객체관련 작업을 하면 자동으로 그내용이 반영
+
+--1.user _xxx :사용자가 소유한 객체에대한 정보
+--2.all_xxx:user_xxx를 포함. 다른사용자로 부터 사용권한을부여받은 객체대한 정보
+--3.dba_xxx  :관리자전용.모든 사용자의 모든객체에대한 정보
+
+--이용가능한 모든 dd조회
+select * from dictionary;
+
+--********************************
+--user_xxx
+--********************************
+--xxx는객체이름 복수형을 사용한다.
+
+--user_tables
+
+select*from user_tables;
+select*from tabs;       --동의어(synonym)
+
+--user_sys_privs: 권한
+--user_role_privs :롤 (권한묶음)
+--role_sys_privs :사용자가 가진 롤에 포함된 모든권한
+
+ select*from user_sys_privs;
+ select*from user_role_privs;
+ select*from role_sys_privs;
+ 
+
+ -user_sequences
+ select*from user_sequences;
+  -user_views
+ select*from user_views;
+ --user_indexes
+ select*from  user_indexes;
+ --user constraints
+  select*from  user_constraints;
+  
+--********************************
+--all_xxx
+--********************************
+ --현재계정이 소유하거나 사용권한을 부여받은객체조회
+ 
+ --all_tabels
+ select*from all_tables;
+ 
+ --all_indexes
+  select*from all_indexes;
+  
+  --********************************
+--dba_xxx
+--********************************
+   select*from dba_tables; --ORA-00942: table or view does not exist
+--특정사용자의 테이블 조회 
+   select*
+   from dba_tables
+   where owner in ('KH','QWERTY');
+   
+   --특정사용자의 권한조회 
+   
+    select*
+   from dba_sys_privs
+   where grantee ='KH';
+   
+      select*
+   from dba_role_privs
+   where grantee ='KH';
+   
+   --테이블관련 권한확인
+      select*
+   from dba_tab_privs
+   where owner ='KH';
+   
+   --관리자가 kh.tb_coffee 읽기 권한을 qwerty에게 부여 
+   grant select, insert, update, delete on kh.tb_coffe to qwerty;
+   
+   ------------------------------------
+   -- STORED VIEW
+   ------------------------------------
+--저장뷰.
+--inlineview는 일회성이었지만,이를 객체로 저장해서 재사용이가능
+--가상테이블처럼 사용하지만, 실제로 데이터를 가지고 있는것은아니다.
+--실제 테이블과 링크개념 
+
+--뷰객체를 이용해서 제한적인 데이터만 다른사용자에게 제공하는것이 가능하다.
+
+create view view_emp
+as
+select emp_id, 
+            emp_name,
+            substr(emp_no, 1, 8) || '******' emp_no,
+            email,
+            phone
+from employee;
+
+select*from view_emp;
+
+select* 
+from(
+           select emp_id, 
+            emp_name,
+            substr(emp_no, 1, 8) || '******' emp_no,
+            email,
+            phone
+from employee
+);
+
+    
+    
+--dd에서 조회 
+select*from user_views;
+
+--타사용자에게 선별적인 데이터를 제공
+grant select on kh.view_emp to qwerty;
+
+--view특징
+--1.실제 컬럼뿐 아니라 가공된 컬럼 사용가능
+--2.join  을사용한 view 가능
+--3.or replace  옵션 사용가능
+
+create or replace view view_emp
+as
+select emp_id, 
+            emp_name,
+            substr(emp_no, 1, 8) || '******' emp_no,
+            email,
+            phone,
+            nvl(dept_title,'인턴') dept_title
+from employee  E
+    left join department D
+    on E.dept_code= D.dept_id
+    with  read only;
+
+--성별,나이등 복잡한 연산이 필요한컬럼을 미리 view지정해두면 편리하다.
+
+
+create or replace view view_employee_all
+as
+select E.*,
+            decode(substr(emp_no, 8, 1), '1', '남', '3', '남', '여') gender
+from employee E;
+
+select *
+from view_employee_all
+where gender = '여';
+
+
+-------------------------------------
+--SEQUENCE
+-------------------------------------
+--정수값을 순차적으로 자동생성하는 객체.채번기
+/*
+create sequence 시퀀스명
+start with 시작값--------------기본값1
+increment by 증가값 -------------- 기본값1
+maxvalue 최대값|nomaxvalue --기본값은 nomaxvalue
+                                                             최대값에 도달하면,다시시작값(cycle)혹은 에러유발(nocycle)
+minvalue 최소값|nominvalue--기본값은 nominvalue
+                                                             최대값에 도달하면,다시시작값(cycle)혹은 에러유발(nocycle)
+cycle |nocycle      --------------순환여부,기본값은 nocycle
+cache 캐싱|nocache---------기본값 cache 20.시퀀스객체로 부터 20개씩 가져와서 메모리에서 채번.
+--                                                 오류가 발생하여,숫자를 건너뛸수도 있다.
+*/
+
+create table tb_names(
+no number,
+name varchar2(100) not null,
+constraints pk_tb_names_no primary key (no)
+);
+
+
+create sequence seq_tb_names_no
+start with 1000
+increment by 1
+nomaxvalue
+nominvalue
+nocycle
+cache 20;
+
+insert into tb_names 
+values(seq_tb_names_no.nextval, '홍길동');
+
+select * from tb_names;
+/*
+sequence는 번호표 입력해 주는 친구고, nextval은 다음 번호표를 주는 친구며, currval은 현재 마지막 번호표
+*/
+select seq_tb_names_no.nextval, 
+            seq_tb_names_no.currval
+from dual;
+
+--DD에서 조회 
+select*from user_sequences;
+
+--복합문자열에 시퀀스사용하기
+--주문번호 kh-20210205-1001
+create  table tb_order(
+order_id varchar2(50),
+cnt number,
+constraints pk_tb_order_id primary key (order_id)
+);
+
+create sequence seq_order_id;
+
+insert into tb_order
+values('kh-' || to_char(sysdate, 'yyyymmdd') || '-' || to_char(seq_order_id.nextval, 'FM0000'), 100);
+
+select * from tb_order;
+
+--alter문 통해 시작값 start with 값은 절대 변경할수 없다.
+--그때 시퀀스 객체 삭제후 재생성 할것
+
+alter sequence seq_order_id increment by 10;
+
+
+-------------------------------
+--INDEX
+-------------------------------
+--색인.
+--sql문 처리속도 향상을 위해 컬럼을 대해 생성하는 객체 
+--key :컬럼값,value:레코드논리적주소값 rowid
+--저장하는데이터에대한 별도의공간이 필요함.
+
+--장점:
+--검색속도가빨라지고, 시스템 부하를 줄여서 성능향상 
+
+--단점:
+--인덱스를 위한 추가저장공간이 필요.
+--인덱스를 생성/수정하는데 별도의 시간이 소요됨.
+
+--단순조회 업무보다 변경작업(insert/update/delete)가 많다면 index생성을 주의해야한다.
+
+--인덱스로 사용하면 좋은 컬럼
+--1.선택도 selectivity 가 좋은 컬럼 .중복데이터가 적은 컬럼.
+-- id|주민번호|email|전화번호>이름>부속코드>>>>>>>>>>>>성별
+--pk|uq 제약조건이 사용된 컬럼은 자동으로 인덱스를 생성함     --삭제하려면 제약조건을 삭제해야한다.
+
+--2.where절에 자주 사용되어지는경우,조인기준컬럼인경우
+--3.입력된 데이터의 변경이 적은컬럼
+
+select*
+from user_indexes;
+
+--job_code 인덱스가 없는 컬럼
+select *
+from employee
+where job_code='J1'; --table full scan
+                                --cost 3
+
+--emp_id 인덱스가 있는컬럼
+select *
+from employee
+where emp_id='201'; --unique scan ->by index rowid 
+
+--emp_name 조회
+select *
+from employee
+where emp_name ='송종기';
+
+--emp_name 컬럼으로 인덱스 생성 
+create index idx_employee_emp_name
+on employee(emp_name);
+
+--============================
+--PL/SQL
+--============================
+--Procedural Language/SQL
+--SQL의한계를 보완해서 SQL문 안에서 변수정의/조건처리/반복처리 등의 문법을 지원 
+
+
+--유형 
+--1.익명블럭 (Anonymous Block)   :PL/SQL 실행 가능한 1회용 블럭 
+--2.Procedure :특정구문을 모아둔 서브프로그램. DB서버에 저장하고 , 클라이언트에 의해 호출/실행 
+--3.Function :반드시 하나의 값을 리턴하는 서브프로그램. DB서버에 저장하고, 클라이언트에 의해 호출/실행
+
+--4.trigger
+--5.seheduler
+
+
+/*
+declare  --1.변수선언부(선택)
+
+begin       --2.실행부(필수)
+                        --조건문,반복문,출력문
+
+exception    --3.예외처리부(선택)
+
+end;                --4.블럭종료선언(필수)
+/
+--종료/에 라인주석 달지 말것.
+
+*/
+
+
+--세션별로 설정
+--서버콘솔 출력모드 지정 ON
+set serveroutput on;
+
+begin
+        dbms_output.put_line('Hello PL/SQL');
+end;
+/
+
+declare
+    v_id number;
+begin
+    select emp_id
+    into v_id
+    from employee
+    where emp_name = '&사원명';
+    
+    dbms_output.put_line('사번 = ' || v_id);
+    
+exception
+    when no_data_found then dbms_output.put_line('해당 이름을 가진 사원이 없습니다.');
+
+end;
+/
+
+-------------------------------------
+--  변수선언 / 대입
+-------------------------------------
+-- 변수명  [constant] 자료형 [not null] [ := 초기값];
+
+declare
+    num constant number := 100;
+    name varchar2(100) not null := '홍길동'; --not null은 초기값 지정 필수
+    result number;
+begin
+    dbms_output.put_line('num = ' || num);
+--    num := 200; --값변경 불가
+--    dbms_output.put_line('num = ' || num);
+    name := '&이름';
+    dbms_output.put_line('이름 : ' || name);
+end;
+/
+
+--PL/SQL 자료형
+--1. 기본자료형
+--      문자형 : varchar2, char, clob
+--      숫자형 : number
+--      날짜형 : date
+--      논리형 : boolean (true | false | null)
+--2. 복합자료형
+--      레코드
+--      커서
+--      컬렉션
+
+--참조형는 다른 테이블의 자료형을 차용해서 쓸수 있다.
+--1. %type
+--2. %rowtype
+--3. record
+
+declare
+--    v_emp_name  varchar2(32767);
+--    v_emp_no  varchar2(100);
+--테이블 해당컬럼  타입지정 
+     v_emp_name employee.emp_name%type;
+    v_emp_no employee.emp_no%type;
+    
+begin
+    select emp_name, emp_no
+    into v_emp_name, v_emp_no
+    from employee
+    where emp_id = '&사번';
+    
+    dbms_output.put_line('이름 : ' || v_emp_name);
+    dbms_output.put_line('주민번호 : ' || v_emp_no);
+end;
+/
+
+--%rowtype : 테이블 한행을 타입으로 지정
+declare
+    v_emp employee%rowtype;
+begin
+    select *
+    into v_emp
+    from employee
+    where emp_id = '&사번';
+    
+    dbms_output.put_line('사원명 : ' || v_emp.emp_name);
+    dbms_output.put_line('부서코드 : ' || v_emp.dept_code);
+end;
+/
+
+
+--record
+--사번,사원명,부서명등 존재하지 않는 컬럼조합을 타입으로 선언 
+
+declare
+    type my_emp_rec is record(
+        emp_id employee.emp_id%type, 
+        emp_name employee.emp_name%type,
+        dept_title department.dept_title%type
+    );
+    
+    my_row my_emp_rec;
+begin
+
+    select E.emp_id,
+                E.emp_name,
+                D.dept_title
+    into my_row
+    from employee E
+        left join department D
+            on E.dept_code = D.dept_id
+    where emp_id = '&사번';
+    
+    --출력
+    dbms_output.put_line('사번 : ' ||  my_row.emp_id);
+    dbms_output.put_line('사원명 : ' ||  my_row.emp_name);
+    dbms_output.put_line('부서명 : ' ||  my_row.dept_title);
+    
+end;
+/
+
+--사원명을 입력받고,사번,사원명,직급명,참조형 변수를 통해 출력하세요.
+
+declare
+   emp_id       employee.emp_id%type;
+   emp_name     employee.emp_name%type;
+   dept_code    employee.dept_code%type;
+   job_code     employee.job_code%type;
+  
+begin
+   select emp_id,emp_name,dept_code,job_code
+   into emp_id,emp_name,dept_code,job_code
+   from employee
+   where emp_name ='&사원이름';
+
+   dbms_output.put_line('emp_id : '|| emp_id);
+   dbms_output.put_line('emp_name : ' || emp_name);
+   dbms_output.put_line('dept_code : '|| dept_code);
+   dbms_output.put_line('job_code : '|| job_code);
+  
+end;
+/
+
+--레코드 버전 
+declare
+            type my_recd is record(
+             emp_id employee. emp_id%type,
+            emp_name employee.emp_name%type,
+            job_name job.job_name%type,
+            dept_title department.dept_title%type
+            );
+            my_row my_rec;      --my_row 변수명 my_rec    레코드
+begin
+         select E.emp_id,
+                    E.emp_name,
+                    (select job_name
+                    from job
+                    where job_code = E.job_code),
+                    D.dept_title
+        into my_row
+        from employee E 
+            left join department D
+            on E.dept_code = D.dept_id
+            where emp_name ='&사원명';
+            dbms_output.put_line('사번 : ' ||  + my_row.emp_id); 
+          dbms_output.put_line('사원명 : ' || +my_row.emp_name); 
+           dbms_output.put_line('직급명 : ' || + my_row.job_name);
+           dbms_output.put_line('부서명 : ' || + my_row.dept_title); 
+end;
+/
+
+-----------------------------------------
+--PL/SQL 안의 DML
+-----------------------------------------
+--이안에서 commit /rollback 트랙잭션 처리까지 해줄것 
+
+create table member(
+    id varchar2(30),
+    pwd varchar2(50) not null,
+    name varchar2(100) not null,
+    constraint member_id_pk primary key(id)
+);
+
+desc member;
+
+begin
+--    insert into member
+--    values('honggd', '1234', '홍길동');
+    
+    update member set pwd = 'abcd' 
+    where id = 'honggd';
+    
+    --트랜잭션 처리
+    commit;
+end;
+/
+
+select * from member;
+
+
+--사용자 입력값을 받아서 id,pwd,name 을 새로운 행으로 추가하는 익명블럭을 작성하세요.
+update member set pwd ='abcd1'
+where id ='honggd1';
+--사용자 입력값을 받아서 id,pwd,name 을 새로운 행으로 추가하는 익명블럭을 작성하세요.
+begin
+    insert into member      
+    values ('&id', '&pwd', '&name');        --id,pwd,name 새로운 행추가 
+    --트랙젝션 처리 
+    commit;
+end;
+/
+
+
+--emp_copy 에서 사번 마지막번호에 +1 처리한 사번으로 
+--이름,주민번호,전화번호,직급코드,급여등급을 등록하는 PL/SQL 익명블럭 작성하기 
+
+select*from emp_copy;
+
+declare
+    last_num number;
+begin
+    --1. 사번 마지막 번호 구하기
+    select max(emp_id)
+    into last_num
+    from emp_copy;
+    dbms_output.put_line('last_num = ' || last_num);
+    
+    --2. 사용자입력값으로 insert문 실행
+    insert into emp_copy (emp_id, emp_name, emp_no, phone, job_code, sal_level)
+    values(last_num + 1, '&emp_name', '&emp_no', '&phone', '&job_code', '&sal_level');
+
+    --3. transaction처리
+    commit;
+end;
+/
+
+
+declare
+    last_num number;
+begin
+    --1. 사번 마지막 번호 구하기
+    select min(emp_id)
+    into first_num
+    from emp_copy;
+    dbms_output.put_line('first_num = ' || first_num);
+    
+    --2. 사용자입력값으로 insert문 실행
+    insert into emp_copy (emp_id, emp_name, emp_no, phone, job_code, sal_level)
+    values(last_num + 1, '&emp_name', '&emp_no', '&phone', '&job_code', '&sal_level');
+
+    --3. transaction처리
+    commit;
+end;
+/
+
+
+------------------------------------
+--조건문
+------------------------------------
+
+--1.if 조건식 then ...end if 
+--2.if조건식 then ...else ...end if;
+--3.if조건식 1 then ...else if 조건식2 then ...end if;
+declare
+    name varchar2(100) := '&이름';
+begin
+    if name = '홍길동' then
+        dbms_output.put_line('반갑습니다, 홍길동님');
+        else
+         dbms_output.put_line('누구냐 넌?');
+    end if;
+
+    dbms_output.put_line('----------- 끝 ------------');
+end;
+/
+
+
+declare 
+emp_id  :=&숫자;
+begin 
+    if mod(&숫자,3)=0 then
+    dbms_output.put_line('3의배수를 입력하셨습니다.');
+    elsif mod(num,3)=1 then 
+     dbms_output.put_line('3으로나눈 나머지가 1입니다.');
+    elsif mod(num,3)=2 then
+     dbms_output.put_line('3으로 나눈나머지가 2입니다.');
+    end if;
+    
+    end;
+    /
+    
+    --사번을 입력받고,해당사원 직급이 J1라면 ' 대표' 출력
+    --J2라면 '임원'
+    --그외는 평사원 이라고 출력하세요 
+  declare
+    jo_code varchar(20);
+begin
+    select job_code
+    into jo_code
+    from employee
+    where emp_id = &사번;
+    if jo_code = 'J1' then
+        dbms_output.put_line('대표');
+    elsif jo_code = 'J2' then
+        dbms_output.put_line('임원');
+    else
+        dbms_output.put_line('평사원');
+    end if;
+end;
+/
+
+
+
+declare
+    v_emp_id employee.emp_id%type := '&사번';
+    v_job_code employee.job_code%type;
+begin
+    select job_code
+    into v_job_code
+    from employee
+    where emp_id = v_emp_id;
+    
+    if v_job_code = 'J1' then
+        dbms_output.put_line('대표');
+    elsif v_job_code = 'J2' then
+        dbms_output.put_line('임원');
+    else 
+        dbms_output.put_line('평사원');
+    end if;
+end;
+/
+
+---------------------------------
+--반복문
+---------------------------------
+--1.기본 loop -무한반복(탈출 조건식)
+--2.while loop -조건에 따른반복
+--3.for loop - 지정횟수만큼 반복실해
+
+declare
+    n number :=1;
+begin 
+        loop
+        dbms_output.put_line(n);
+        n:=n+1;
+        
+        --exit 구문 필수
+        
+    --    if  n>100 then
+       -- exit;
+       -- end if;
+            exit when n>50;
+ 
+        
+        end loop;
+end;
+/
+
+
+--난수 출력
+declare
+    rnd number;
+begin 
+    --start 이상, end 미만의 난수 
+    rnd := trunc(dbms_random.value(1, 11));
+    dbms_output.put_line(rnd);
+end;
+/
+
+
+declare
+    rnd number;
+    n number :=0;
+begin
+    loop
+        exit when n=10;
+        --start이상 end 미만의 난수
+        rnd := trunc(dbms_random.value(1,11));      --랜덤숫자 10개 
+       dbms_output.put_line(n || ' : ' || rnd);
+        n := n+1;
+    end loop;
+end;
+/
+
+
+--while loop
+
+declare 
+n number :=0;
+begin 
+while n<10 loop
+ dbms_output.put_line(n);
+ n:=n+1;
+end loop;
+end;
+/
+
+-- 짝수
+declare
+  n number := 0;
+begin 
+  while n <10 loop
+  if mod(n,2) =0 and n <> 0 then
+    dbms_output.put_line(n);
+    n := n+1 ; --증감식
+  else
+    n := n+1 ;
+  end if;
+  end loop;
+end;
+/
+
+--홀수 
+declare
+  n number := 0;
+begin 
+  while n <10 loop
+  if mod(n,3) =0 and n <> 0 then
+    dbms_output.put_line(n);
+    n := n+1 ; --증감식
+  else
+    n := n+1 ;
+  end if;
+  end loop;
+end;
+/
+
+
+--사용자로부터 단수(2~9단)을입력받아 해당단수의 구구단을 출력하기
+--2~9외의 숫자를입력하면,잘못입력하셨습니다.출력후 종료 
+
+declare
+    dan number := &단수;
+    num number := 0;
+begin
+    if dan between 2 and 9 then
+    dbms_output.put_line('---'|| dan || ' 단---');
+        while num < 10 loop
+        dbms_output.put_line(dan || ' X ' || num || ' = ' || dan * n);
+        num := num + 1;
+        end loop;
+    else
+        dbms_output.put_line('잘못입력하셨습니다');
+    end if;
+end;
+/
+--for... loop
+--증감변수를 별도로 선언하지 않아도 좋다
+--자동증가처리 
+--reverse 1씩감소 
+
+begin 
+--n을 선언없이 바로 사용가능.
+--시작값..종료값(시작값<종료값)
+for n in 1..5 loop
+dbms_output.put_line(n);
+end loop; 
+
+end;
+/
+
+--210~220번 사이의 사원을 조회(사번,이름,전화번호)
+
+declare
+    e employee%rowtype;
+begin
+    
+    for n in 210..220 loop
+    
+        select *
+        into e
+        from employee
+        where emp_id = n;
+
+        dbms_output.put_line('사번 : ' || e.emp_id);
+        dbms_output.put_line('이름 : ' || e.emp_name);
+        dbms_output.put_line('전화번호 : ' || e.phone);
+        dbms_output.put_line(' ');
+    end loop;
+    
+    
+end;
+/
+
+--@실습문제:tb_number테이블에 난수 100개를 저장하는 익명블럭을 생성하세요.
+--실행시마다 생성된 모든 난수의 합을 콘솔에 출력할것 
+--@실습문제 : tb_number테이블에 난수 100개(0 ~ 999)를 저장하는 익명블럭을 생성하세요.
+--실행시마다 생성된 모든 난수의 합을 콘솔에 출력할 것.
+create table tb_number(
+    id number, --pk sequence객체로 부터 채번
+    num number, --난수
+    reg_date date default sysdate,
+    constraints pk_tb_number_id primary key(id)
+);
+
+create sequence seq_number_id 
+start with 1
+increment by 1
+nomaxvalue
+nominvalue
+nocycle
+cache 20;
+
+declare 
+    rnd number;
+    n number=0; 
+    for n in 1..100 loop        --1~100사이 
+    rnd: = trunc(dbms_random.value(0,1000));
+     insert into tb_number values(seq_tb_number.nextval,rnd sysdate);       --nextval은 다음 번호표를 주는 친구
+    n: = n + rnd;
+    end loop;
+    
+    dbms_output.put_line('난수의 합 = ' || n);
+    end;
+    /
+    
+    drop table tb_number;
+    drop sequence seq_num_id;
+    
+    select * from tb_number;
