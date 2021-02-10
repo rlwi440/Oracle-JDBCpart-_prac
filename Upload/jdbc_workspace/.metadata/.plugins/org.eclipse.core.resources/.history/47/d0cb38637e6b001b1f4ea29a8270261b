@@ -1,0 +1,50 @@
+package view;
+
+import java.util.Scanner;
+
+import member.controller.MemberController;
+
+public class MemberMenu {
+	
+	private MemberController memberController = new MemberController();
+	private Scanner sc = new Scanner(System.in);
+	
+	public void mainMenu() {
+		String menu = "========== 회원 관리 프로그램 ==========\n"
+					+ "1.회원 전체조회\n"
+					+ "2.회원 아이디조회\n" 
+					+ "3.회원 이름조회\n" 
+					+ "4.회원 가입\n" 
+					+ "5.회원 정보변경\n" 
+					+ "6.회원 탈퇴\n" 
+					+ "0.프로그램 끝내기\n"
+					+ "----------------------------------\n"
+					+ "선택 : "; 
+		
+		while(true) {
+			System.out.print(menu);
+			int choice = sc.nextInt();
+			
+			switch(choice) {
+				case 1: break;
+				case 2: break;
+				case 3: break;
+				case 4: break;
+				case 5: break;
+				case 6: break;
+				case 0: 
+					System.out.print("정말로 끝내시겠습니까?(y/n) : ");
+					if(sc.next().charAt(0)=='y')
+						return;
+					break;
+				default: 
+			}
+			
+			
+		}
+		
+		
+	}
+
+}
+

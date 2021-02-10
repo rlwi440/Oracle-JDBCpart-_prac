@@ -1,0 +1,10 @@
+package member.model.dao;
+/**
+ * DAO
+ * Data Access Object
+ * DB에 접근하는 클래스
+ *
+ */
+public class MemberDao {
+
+}

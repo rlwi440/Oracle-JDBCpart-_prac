@@ -1,0 +1,55 @@
+package member.model.dao;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+
+import model.vo.Member;
+
+/**
+ * DAO
+ * Data Access Object
+ * DB에 접근하는 클래스
+ * 
+ * 1. 드라이버클래스 등록(최초1회)
+ * 2. Connection객체 생성(url, user, password) 
+ * 3. 자동커밋여부 설정 : true(기본값)/false -> app에서 직접 트랜잭션 제어
+ * 4. PreparedStatement객체생성(미완성쿼리) 및 값대입
+ * 5. Statement객체 실행. DB에 쿼리 요청
+ * 6. 응답처리 DML:int리턴, DQL:ResultSet리턴->자바객체로 전환
+ * 7.트랙잭션처리 (DML)
+ *8.자원반납(생성의역순)
+ */
+public class MemberDao {
+
+	public int insertMember(Member member) {
+		try {
+			//1. 드라이버클래스 등록(최초1회)
+			String driverClass = "oracle.jdbc.OracleDriver";
+			Class.forName(driverClass);
+			//2. Connection객체 생성(url, user, password) 
+			String url = "jdbc:oracle:thin:@localhost:1521:xe";		//ip 도메인 포드  db 네임
+			String user = "student";	//user 대소문자 구분
+			String password = "student";
+			Connection conn =DriverManager.getConnection(url, user, password);
+			//3. 자동커밋여부 설정 : true(기본값)/false -> app에서 직접 트랜잭션 제어
+			//4. PreparedStatement객체생성(미완성쿼리) 및 값대입
+			//5. Statement객체 실행. DB에 쿼리 요청
+			//6. 응답처리 DML:int리턴, DQL:ResultSet리턴->자바객체로 전환
+			//7. 트랜잭션처리(DML)
+
+		} catch (ClassNotFoundException e) {
+			//ojdbc6.jar 프로젝트 연동실패!
+			e.printStackTrace();
+		}
+		//8. 자원반납(생성의 역순)
+ catch (Exception e) {
+		
+			e.printStackTrace();
+		}
+		
+		
+		return 0;
+	}
+
+}

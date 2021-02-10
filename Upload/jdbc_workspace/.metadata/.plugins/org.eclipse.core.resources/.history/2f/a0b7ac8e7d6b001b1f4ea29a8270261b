@@ -1,0 +1,6 @@
+package member.controller;
+
+
+public class MemberController {
+	private MemberDao memberDao = new MemberDao();
+}
