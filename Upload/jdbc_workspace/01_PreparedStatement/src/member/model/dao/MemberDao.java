@@ -436,7 +436,7 @@ public class MemberDao {
 		PreparedStatement pstmt = null; // finally절에서 접근하기 위해 위에 선언해줌
 		ResultSet rset = null;
 		int delete = 0; // 선언값??
-		String sql = "delete *from  member where member_id = ?";
+		String sql = "delete member where member_id = ?";		//sql 에대한 이해
 		try {
 			// 1. 드라이버클래스 등록(최초1회)
 			Class.forName(driverClass);
