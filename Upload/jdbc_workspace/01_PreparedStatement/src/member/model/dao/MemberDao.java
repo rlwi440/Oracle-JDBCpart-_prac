@@ -229,7 +229,7 @@ public class MemberDao {
 		Connection conn = null;
 		PreparedStatement pstmt = null; // finally절에서 접근하기 위해 위에 선언해줌
 		ResultSet rset = null;
-		String sql = "select * from member where member_id = ?";
+		String sql = "select * from member where member_name like ?";		//sql 디벨로퍼에서 이안에 있는데 실행된다는 의미  
 		Member member = null;
 
 		try {
@@ -240,7 +240,9 @@ public class MemberDao {
 			conn = DriverManager.getConnection(url, user, password);
 			// 4. PreparedStatement객체생성(미완성쿼리(값대입이 아직 안된 상태)) 및 값대입
 			pstmt = conn.prepareStatement(sql); // select * from member where member_id = 'honggd'
-			pstmt.setString(1, memberName);//
+			pstmt.setString(1, "%"+memberName+"%");// ? 첫번째 memberName 을 삽입한다
+																						// "%"+memberName+"%")  preperson  객체에서 string sql  ?가 약속 그 이외의 문자들이
+																						//while setString에 들어가야한다. 
 			// 5. Statement 객체 실행. DB에 쿼리 요청
 			rset = pstmt.executeQuery(); // 0행이어도 rset이 반환된다.
 			// 6. 응답처리 DML:int 리턴, DQL: ResultSet리턴 ->자바객체로 전환
@@ -297,7 +299,7 @@ public class MemberDao {
 		Connection conn = null;
 		PreparedStatement pstmt = null; // finally절에서 접근하기 위해 위에 선언해줌
 		ResultSet rset = null;
-		String sql = "select * from member where member_id = ?";
+		String sql = "select * from member where member_id = ? and  password =? ";
 		Member member = null;
 
 		try {
@@ -308,7 +310,8 @@ public class MemberDao {
 			conn = DriverManager.getConnection(url, user, password);
 			// 4. PreparedStatement객체생성(미완성쿼리(값대입이 아직 안된 상태)) 및 값대입
 			pstmt = conn.prepareStatement(sql); // select * from member where member_id = 'honggd'
-			pstmt.setString(1, memberId);//
+			pstmt.setString(1, memberId);
+			pstmt.setString(2,memberPassWord);
 			// 5. Statement 객체 실행. DB에 쿼리 요청
 			rset = pstmt.executeQuery(); // 0행이어도 rset이 반환된다.
 			// 6. 응답처리 DML:int 리턴, DQL: ResultSet리턴 ->자바객체로 전환
@@ -359,14 +362,13 @@ public class MemberDao {
 		return member;
 	}
 
-	public int changeMember(Member meber) {
+	public int changeMember(Member member) {
 		Connection conn = null;
 		PreparedStatement pstmt = null; // finally절에서 접근하기 위해 위에 선언해줌
 		ResultSet rset = null;
 		int change = 0; // 선언값??
-		String sql = "delete * from member where member_id = ?";
-		Member member = null;
-
+		String sql = "update member set member_name =?, password=? ,gender= ?,age =?,email = ?,phone = ?,address =?, hobby = ?  where member_id =? ";
+		//sql 디벨로퍼에서 이안에 있는데 실행된다는 의미  
 		try {
 			// 1. 드라이버클래스 등록(최초1회)
 			Class.forName(driverClass);
@@ -375,6 +377,16 @@ public class MemberDao {
 			conn = DriverManager.getConnection(url, user, password);
 			// 4. PreparedStatement객체생성(미완성쿼리(값대입이 아직 안된 상태)) 및 값대입
 			pstmt = conn.prepareStatement(sql); // select * from member where member_id = 'honggd'
+			pstmt.setString(1,member.getMemberName());
+			pstmt.setString(2,member.getPassword());
+			pstmt.setString(3,member.getGender());
+			pstmt.setInt(4, member.getAge());
+			pstmt.setString(5, member.getEmail());
+			pstmt.setString(6, member.getPhone());
+			pstmt.setString(7,member.getAddress());
+			pstmt.setString(8,member.getHobby());
+			pstmt.setString(9,member.getMemberId());
+			
 			// 5. Statement 객체 실행. DB에 쿼리 요청
 			rset = pstmt.executeQuery(); // 0행이어도 rset이 반환된다.
 			// 6. 응답처리 DML:int 리턴, DQL: ResultSet리턴 ->자바객체로 전환
@@ -419,13 +431,12 @@ public class MemberDao {
 		return change;
 	}
 
-	public int deleteMember(Member meber) {
+	public int deleteMember(Member member) {
 		Connection conn = null;
 		PreparedStatement pstmt = null; // finally절에서 접근하기 위해 위에 선언해줌
 		ResultSet rset = null;
 		int delete = 0; // 선언값??
-		String sql = "delete * from member where member_id = ?";
-
+		String sql = "delete *from  member where member_id = ?";
 		try {
 			// 1. 드라이버클래스 등록(최초1회)
 			Class.forName(driverClass);
@@ -436,6 +447,8 @@ public class MemberDao {
 			conn.setAutoCommit(false);
 			// 4. PreparedStatement객체생성(미완성쿼리(값대입이 아직 안된 상태)) 및 값대입
 			pstmt = conn.prepareStatement(sql); // select * from member where member_id = 'honggd'
+			
+			pstmt.setString(1,member.getMemberId());
 			// 5. Statement 객체 실행. DB에 쿼리 요청
 			// 6. 응답처리 : DML=int리턴, DQL=ResultSet리턴 -> 자바객체로 전환 과정 필요
 			// 5~6번 동시처리

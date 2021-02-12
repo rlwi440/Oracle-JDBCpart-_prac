@@ -42,7 +42,7 @@ public class MemberMenu {
 			 */
 			case 3:
 				memberName = inputMemberName();
-				member = memberController.selectOne(memberName);
+				member = memberController.selectName(memberName);
 				displayMember(member);
 				break;
 			case 4:
