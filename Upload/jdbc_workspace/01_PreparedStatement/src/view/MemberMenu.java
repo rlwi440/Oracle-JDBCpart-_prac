@@ -62,7 +62,7 @@ public class MemberMenu {
 				System.out.println("회원정보변경합니다");
 				// 1.회원정보변경 -> MemberId객체
 				memberId = inputMemberId();
-				memberpassword = inputMemberPassWorld();
+				memberpassword = inputMemberPassWord();
 				// member = memberController.selectOne(memberName);
 				member = memberController.selectone(memberId, memberpassword);
 				displayMember(member);
@@ -78,7 +78,7 @@ public class MemberMenu {
 				System.out.println("탈퇴신청합니다");
 				// 1.회원정보변경 -> MemberId객체
 				memberId = inputMemberId();
-				memberpassword = inputMemberPassWorld();
+				memberpassword = inputMemberPassWord();
 				// Controller구간 ID,PassWorld 구간 입력받아 회원탈퇴아이디와 비밀번호 받으니
 				member = memberController.selectone(memberId, memberpassword);
 				result = memberController.deleteMember(member);
@@ -132,7 +132,7 @@ public class MemberMenu {
 		return sc.next();
 	}
 
-	private String inputMemberPassWorld() { // Camel case
+	private String inputMemberPassWord() { // Camel case
 		System.out.print("비밀번호 입력 : ");
 		return sc.next();
 	}
